@@ -30,6 +30,27 @@ class HostedPages(private val configuration: Configuration) {
     val chapterAFistfulOfMonads: Page = landing.resolve("a-fistful-of-monads.html", "chapter-a-fistful-of-monads")
     val chapterForAFewMonadsMore: Page = landing.resolve("for-a-few-monads-more.html", "chapter-for-a-few-monads-more")
     val chapterZippers: Page = landing.resolve("zippers.html", "chapter-zippers")
+
+    // @todo move - this isn't a hosted page
     val createContentEditRequest =
         createUri("https://github.com/learnyouahaskell/learnyouahaskell.github.io/issues/new/choose")
+
+    fun all(): Iterable<Page> = listOf(
+        landing,
+        faq,
+        chapters,
+        chapterIntroduction,
+        chapterStartingOut,
+        chapterTypesAndTypeClasses,
+        chapterSyntaxInFunctions,
+        chapterRecursion,
+        chapterHigherOrderFunctions,
+        chapterModules,
+        chapterMakingOurOwnTypeclasses,
+        chapterInputAndOutput,
+        chapterFunctionallySolvingProblems,
+        chapterFunctionsApplicativeFunctorsAndMonoids,
+        chapterAFistfulOfMonads,
+        chapterForAFewMonadsMore,
+        chapterZippers)
 }
