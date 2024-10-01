@@ -1,9 +1,9 @@
-- Do checkouts work from SHAs 
+- Killing Ktor when branch identity changes? Perhaps I just need to overwrite the content to make it work
 - HTTPS (Ktor, Selenium)
 - Selenium Grid
 - Test scripts needs to test for its requirements
 - Work out the branch/SHA indeterminacy issues
 - Consider Docker for constituent apps in particular for IE support
 - Better method for spawning/killing Ktor
-- Killing Ktor when branch identity changes
 - Expand the 'comp' script to be driven from our configuration json file, currently it is 'painful' to trigger comparisons against multiple output sets
+- cloning from SHAs

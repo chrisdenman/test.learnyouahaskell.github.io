@@ -41,7 +41,7 @@ ID=$(jq -r '.id' "${CONFIG_FILE}") && readonly ID
 # Some initial user feedback
 logInfo "Executing test configuration $(sQuote "$(blue "${ID}")")."
 
-./clone_repository "${CONFIG_FILE}"
+./clone_repository "${CONFIG_FILE}" || exit 1
 
 # Copy the Kotlin "Configuration" file from the root project to the ktor project
 logInfo "Copying the Kotlin configuration file $(sQuote "$(blue "src/test/kotlin/config/Configuration.kt")") to $(sQuote "$(green "servers/ktor/src/main/kotlin")")."
