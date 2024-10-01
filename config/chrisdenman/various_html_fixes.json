@@ -28,7 +28,7 @@
       "zippers.html"
     ],
     "screenshots": {
-      "output_file_template": "{{user.dir}}/screenshots/{{github.owner}}:{{github.repository}}:{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}:{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
+      "output_file_template": "{{user.dir}}/screenshots/{{github.owner}}-{{github.repository}}-{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}-{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
       "dateTime_formatter_pattern": "uuuu-MM-dd'T'HH:mm:ss.SSSX",
       "maximum_height_pixels": 2048,
       "scroll_timeout_milliseconds": 100,

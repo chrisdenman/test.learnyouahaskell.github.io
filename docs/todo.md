@@ -1,3 +1,4 @@
+- Do checkouts work from SHAs 
 - HTTPS (Ktor, Selenium)
 - Selenium Grid
 - Test scripts needs to test for its requirements
