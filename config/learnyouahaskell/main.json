@@ -1,0 +1,68 @@
+{
+  "id": "production",
+  "github": {
+    "owner": "learnyouahaskell",
+    "repository": "learnyouahaskell.github.io",
+    "branch": "main",
+    "html_content_root": "docs",
+    "sha": "646c3d171d24c71c48581fe1923f6d17cec7a10a"
+  },
+  "tests": {
+    "relative_page_urls": [
+      "",
+      "faq.html",
+      "chapters.html",
+      "introduction.html",
+      "starting-out.html",
+      "types-and-typeclasses.html",
+      "syntax-in-functions.html",
+      "recursion.html",
+      "higher-order-functions.html",
+      "modules.html",
+      "making-our-own-types-and-typeclasses.html",
+      "input-and-output.html",
+      "functionally-solving-problems.html",
+      "functors-applicative-functors-and-monoids.html",
+      "a-fistful-of-monads.html",
+      "for-a-few-monads-more.html",
+      "zippers.html"
+    ],
+    "screenshots": {
+      "output_file_template": "{{user.dir}}/screenshots/{{github.owner}}:{{github.repository}}:{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}:{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
+      "dateTime_formatter_pattern": "uuuu-MM-dd'T'HH:mm:ss.SSSX",
+      "maximum_height_pixels": 2048,
+      "scroll_timeout_milliseconds": 100,
+      "image_format": "png"
+    },
+    "browsers": {
+      "targets": [
+        {
+          "name": "chrome"
+        },
+        {
+          "name": "firefox"
+        }
+      ],
+      "dimensions": [
+        {
+          "width": 860,
+          "height": 800
+        },
+        {
+          "width": 1024,
+          "height": 800
+        }
+      ]
+    },
+    "remote-web-driver": {
+      "scheme": "http",
+      "bind-address": "0.0.0.0",
+      "port": 4444
+    }
+  },
+  "serving": {
+    "scheme": "http",
+    "bind-address": "0.0.0.0",
+    "port": 8888
+  }
+}

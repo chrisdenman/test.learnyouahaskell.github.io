@@ -1,0 +1,32 @@
+import static java.lang.Integer.parseInt
+
+plugins {
+    id 'io.ktor.plugin' version "${ktor_version}"
+    id 'org.jetbrains.kotlin.jvm' version "${version_plugin_kotlin_jvm}"
+    id 'org.jetbrains.kotlin.plugin.serialization' version "${version_plugin_kotlin_jvm}"
+}
+
+group = 'io.github.learnyouahaskell.test.ktor'
+version = "${version_app}"
+mainClassName = "io.github.learnyouahaskell.test.ktor.ApplicationKt"
+
+repositories {
+    mavenCentral()
+}
+
+run {
+    systemProperty "io.github.learnyouahaskell.test.config", System.getProperty("io.github.learnyouahaskell.test.config")
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${version_kotlinx_serialization_json}"
+    implementation "io.ktor:ktor-server-core-jvm:"
+    implementation "io.ktor:ktor-server-host-common-jvm"
+    implementation "io.ktor:ktor-server-netty-jvm"
+    implementation "ch.qos.logback:logback-classic:${logback_version}"
+}
+
+kotlin {
+    jvmToolchain(parseInt(jvmToolChain))
+}
