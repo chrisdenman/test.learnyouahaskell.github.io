@@ -3,7 +3,7 @@ package io.github.learnyouahaskell.test
 import io.github.learnyouahaskell.test.config.Configuration
 import java.net.URI.create as createUri
 
-class HostedPages(private val configuration: Configuration) {
+class HostedPages(configuration: Configuration) {
 
     val landing: Page = Page(configuration.serving.uri, "landing")
     val faq: Page = landing.resolve("faq.html", "faq")
