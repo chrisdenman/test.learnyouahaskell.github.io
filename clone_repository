@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+: '
+    Clones a GitHub repository using the GitHub CLI command.
+'
+source common
+
+# Constants
+function printUsageAndExit { logError "Usage: 'clone_repository $(blue "CONFIG_FILE")'"; exit 1; }
+
+# Check that we have a single argument
+if [[ $# -ne 1 ]]; then printUsageAndExit; fi
+
+CONFIG_FILE="${1}" && readonly CONFIG_FILE
+# Check that the provided configuration file argument value exists
+if [[ ! -f $CONFIG_FILE ]]; then
+  logError "Configuration file $(sQuote "$(red "${CONFIG_FILE}")") inaccessible or nonexistent." && printUsageAndExit
+fi
+
+ERRORS=0
+
+# Ensure that the GitHub CLI installed
+gh --version &>/dev/null || { ERRORS=1 && logError "$(sQuote "$(red "gh")") command not found." ; }
+# Ensure that jq installed
+jq --version &>/dev/null || { ERRORS=1 && logError "$(sQuote "$(red "jq")") command not found." ; }
+
+# If there's any error, exit
+if [ "$ERRORS" -ne "0" ]; then
+  logError "Exiting due to previous errors."; exit 1
+else
+  # Read the configuration file's identity
+  ID=$(jq -r '.id' "${CONFIG_FILE}") && readonly ID
+  # Some initial user feedback
+  logInfo "Using test configuration $(sQuote "$(blue "${ID}")")."
+
+  OWNER=$(jq -r '.github.owner' "${CONFIG_FILE}") && readonly OWNER
+  REPOSITORY=$(jq -r '.github.repository' "${CONFIG_FILE}") && readonly REPOSITORY
+  BRANCH=$(jq -r '.github.branch' "${CONFIG_FILE}") && readonly BRANCH
+  OWNER_AND_REPO="${OWNER}/${REPOSITORY}" && readonly OWNER_AND_REPO
+  HTML_CONTENT_ROOT=$(jq -r '.github.html_content_root' "${CONFIG_FILE}") && readonly HTML_CONTENT_ROOT
+
+  WORKING_DIR="$(mktemp -d)" \
+    || { logError "Failed to create working directory $(sQuote "$(red "${WORKING_DIR}")")." && exit 1 ; }
+  OWNER_DIR="${WORKING_DIR}"/"${OWNER}"
+  REPO_DIR="${OWNER_DIR}"/"${REPOSITORY}"
+  mkdir "${OWNER_DIR}" &>/dev/null \
+    || { logError "Failed to create owner directory $(sQuote "$(red "${OWNER_DIR}")")." && exit 1 ; }
+  pushd "${OWNER_DIR}" &>/dev/null \
+    || { logError "Failed to push owner directory to $(sQuote "$(red "${OWNER_DIR}")")." && exit 1 ; }
+
+  logInfo "Using $(sQuote "$(green "ssh")") protocol with $(sQuote "$(green "gh")")."
+  gh config set git_protocol ssh
+
+  logInfo "Cloning $(sQuote "$(blue "${OWNER_AND_REPO}")") into $(sQuote "$(blue "${REPO_DIR}")")."
+  gh repo clone "${OWNER_AND_REPO}" -- -b "${BRANCH}" --single-branch &>/dev/null \
+    || { logError "Failed to clone $(sQuote "$(red "${OWNER_AND_REPO}")")." && exit 1 ; }
+
+  pushd "${REPO_DIR}" \
+    || { logError "Failed to push repository directory to $(sQuote "$(red "${REPO_DIR}")")." && exit 1 ; }
+  SHA=$(git rev-parse @) && readonly SHA
+  logInfo "Branch  $(sQuote "$(blue "${BRANCH}")") has SHA of $(sQuote "$(green "${SHA}")")."
+  popd &>/dev/null \
+    || { logError "Failed to pop repository directory to $(sQuote "$(red "${REPO_DIR}")")." && exit 1 ; }
+
+  REPO_HTML_CONTENT_ROOT="${REPO_DIR}/${HTML_CONTENT_ROOT}" && readonly REPO_HTML_CONTENT_ROOT
+
+  popd &>/dev/null \
+    || { logError "Failed to pop owner directory to $(sQuote "$(red "${OWNER_DIR}")")." && exit 1 ; }
+  logInfo "Setting $(sQuote "$(blue "${ID}")") configuration property $(sQuote "$(blue ".serving.html-content-root")") to $(sQuote "$(green "${REPO_HTML_CONTENT_ROOT}")")."
+
+  # Update the serving.html-content_root property
+  cat <<< "$(jq ".serving.\"html-content-root\" |= \"${REPO_HTML_CONTENT_ROOT}\"" "${CONFIG_FILE}")" > "${CONFIG_FILE}"
+  # Update the github.sha property
+  cat <<< "$(jq ".github.\"sha\" |= \"${SHA}\"" "${CONFIG_FILE}")" > "${CONFIG_FILE}"
+fi

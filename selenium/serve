@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+: '
+    Starts Selenium in standalone mode
+'
+
+source ../common
+
+# Constants
+DIR_NAME="$(dirname "$0")"
+SELENIUM_SERVER_JAR="${DIR_NAME}/selenium-server-4.25.0.jar"
+readonly DIR_NAME SELENIUM_SERVER_JAR
+
+function printUsageAndExit { logError "Usage: 'serve $(blue "CONFIG_FILE")'"; exit 1; }
+
+# Check that we have a single argument
+if [[ $# -ne 1 ]]; then printUsageAndExit; fi
+CONFIG_FILE="${1}" && readonly CONFIG_FILE
+# Check that the provided configuration file argument value exists
+if [[ ! -f $CONFIG_FILE ]]; then
+  logError "Configuration file $(sQuote "$(red "${CONFIG_FILE}")") inaccessible or nonexistent." && printUsageAndExit
+fi
+
+ERRORS=0
+# Ensure that Java is installed
+java -version &>/dev/null || { ERRORS=1 && logError "Java not found on the system." ; }
+# Ensure that jq installed
+jq --version &>/dev/null || { ERRORS=1 && logError "$(sQuote "$(red "jq")") command not found." ; }
+
+# Ensure that the Selenium JAR file is in the working directory
+if [ ! -f "${SELENIUM_SERVER_JAR}" ]; then
+  ERRORS=1 && logError "Selenium server Jar file not found at $(sQuote "$(blue "${SELENIUM_SERVER_JAR}")")"
+fi
+
+# If there's any error, exit
+if [ ${ERRORS} -ne 0 ]; then
+  logError "Exiting due to previous errors."; exit 1
+else
+  ID=$(jq -r '.id' "${CONFIG_FILE}") && readonly ID
+  # Some initial user feedback
+  logInfo "Using the $(sQuote "$(blue "${ID}")") configuration."
+
+  # read the scheme, bind-address and the port from the configuration
+  BIND_ADDRESS=$(jq -r ".tests.\"remote-web-driver\".\"bind-address\"" "${CONFIG_FILE}") && readonly BIND_ADDRESS
+  PORT=$(jq -r ".tests.\"remote-web-driver\".port" "${CONFIG_FILE}") && readonly PORT
+
+  # Output the current Java version we will be using
+  java -version && logInfo "Press $(green "ctrl+d") to stop the server"
+
+  # Start the Selenium server in standalone mode
+  java -jar "${SELENIUM_SERVER_JAR}" "standalone" --port "${PORT}" --host "${BIND_ADDRESS}"
+fi
+
