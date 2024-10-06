@@ -1,5 +1,6 @@
 package io.github.learnyouahaskell.test
 
+import ExternalPages
 import io.github.learnyouahaskell.test.ExternalUris.Companion.BOOK
 import io.github.learnyouahaskell.test.ExternalUris.Companion.PULL_REQUEST
 import io.github.learnyouahaskell.test.Selenium.Companion.hrefToUri
@@ -20,6 +21,7 @@ class LandingPageTests {
 
     private val configuration = loadFrom(File(getProperty("io.github.learnyouahaskell.test.config")))
     private val hostedPages: HostedPages = HostedPages(configuration)
+    private val externalPages: ExternalPages = ExternalPages(configuration)
 
     private val webDriver: RemoteWebDriver = RemoteWebDriver(
         configuration.tests.remoteWebDriver.uri.toURL(),
@@ -97,7 +99,7 @@ class LandingPageTests {
         AutoCloseable { stop() }.use {
             startAt(hostedPages.landing)
             assertEquals(
-                hostedPages.createContentEditRequest,
+                externalPages.createContentEditRequest,
                 hrefToUri(findElement(byLinkText("content edit request")))
             )
         }

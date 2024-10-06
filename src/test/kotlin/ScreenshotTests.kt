@@ -8,14 +8,13 @@ import io.github.learnyouahaskell.test.config.Configuration
 import io.github.learnyouahaskell.test.config.SeleniumBrowserStereotype
 import io.github.learnyouahaskell.test.config.loadFrom
 import io.github.learnyouahaskell.test.util.BufferedImageUtils.Companion.getVerticalTiles
-import io.github.learnyouahaskell.test.util.FileUtils
+import io.github.learnyouahaskell.test.util.FileUtils.Companion.dirExistsOrCreated
 import org.junit.jupiter.api.Test
-import org.openqa.selenium.Capabilities
 import org.openqa.selenium.Dimension
+import org.openqa.selenium.MutableCapabilities
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.edge.EdgeOptions
 import org.openqa.selenium.firefox.FirefoxOptions
-import org.openqa.selenium.ie.InternetExplorerOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 import java.io.File
 import java.lang.System.getProperty
@@ -23,7 +22,6 @@ import java.nio.file.FileSystems.getDefault
 import java.time.LocalDateTime
 import javax.imageio.ImageIO
 import kotlin.reflect.KClass
-import kotlin.test.Ignore
 
 class ScreenshotTests {
 
@@ -54,7 +52,8 @@ class ScreenshotTests {
                     browserStereotypeNameToCapabilities[browserTarget.name]!!
                         .constructors
                         .first()
-                        .call(),
+                        .call()
+                    ,
                     IS_WEBDRIVER_TRACING_ENABLED
                 )
                 AutoCloseable { webDriver.quit() }.use {
@@ -84,7 +83,7 @@ class ScreenshotTests {
                                             }
                                         )
 
-                                    assert(FileUtils.dirExistsOrCreated(outputFile.parentFile))
+                                    assert(dirExistsOrCreated(outputFile.parentFile))
 
                                     ImageIO.write(
                                         tile,
@@ -102,11 +101,10 @@ class ScreenshotTests {
     }
 
     companion object {
-        val browserStereotypeNameToCapabilities: Map<SeleniumBrowserStereotype, KClass<out Capabilities>> = mapOf(
+        val browserStereotypeNameToCapabilities: Map<SeleniumBrowserStereotype, KClass<out MutableCapabilities>> = mapOf(
             SeleniumBrowserStereotype("firefox") to FirefoxOptions::class,
             SeleniumBrowserStereotype("chrome") to ChromeOptions::class,
-            SeleniumBrowserStereotype("edge") to EdgeOptions::class,
-            SeleniumBrowserStereotype("ie") to InternetExplorerOptions::class
+            SeleniumBrowserStereotype("edge") to EdgeOptions::class
         )
 
         const val IS_WEBDRIVER_TRACING_ENABLED = false

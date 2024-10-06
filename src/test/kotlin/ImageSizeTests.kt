@@ -1,16 +1,22 @@
 import io.github.learnyouahaskell.test.HostedPages
 import io.github.learnyouahaskell.test.config.loadFrom
 import org.junit.jupiter.api.Test
-import org.openqa.selenium.By.xpath as byXPath
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 import java.io.File
 import java.lang.System.getProperty
 import java.net.URI
 import javax.imageio.ImageIO
-import kotlin.toString
+import org.openqa.selenium.By.xpath as byXPath
 
+/**
+ * Ensures that all images are declared with their actual widths and heights.
+ */
 class ImageSizeTests {
+
+    companion object {
+        private fun isInt(text: String): Boolean = text.toIntOrNull() != null
+    }
 
     private val configuration = loadFrom(File(getProperty("io.github.learnyouahaskell.test.config")))
     private val hostedPages: HostedPages = HostedPages(configuration)
@@ -27,43 +33,53 @@ class ImageSizeTests {
                 AutoCloseable { quit() }.use {
                     get(page.uri.toString())
 
-                    findElements(byXPath("//img")).forEach {
-                        val widthAttribute = it.getAttribute("width")
-                        if (widthAttribute == null || widthAttribute.isEmpty()) {
-                            println("Image $it on $page has an erroneous width attribute.")
-                            imageSizeDeclarationsAreCorrect = false
-                        }
+                    findElements(byXPath("//img")).forEach { imageElement ->
+                        var imageAttributesCorrect = true
+                        try {
+                            val widthAttribute = imageElement.getAttribute("width")
+                            if (widthAttribute == null || widthAttribute.isEmpty() || !isInt(widthAttribute)) {
+                                println("Image ${imageElement.getAttribute("outerHTML")} on $page has an erroneous 'width' attribute.")
+                                imageAttributesCorrect = false
+                            }
 
-                        val heightAttribute = it.getAttribute("height")
-                        if (heightAttribute == null || heightAttribute.isEmpty()) {
-                            println("Image $it on $page has an erroneous height attribute.")
-                            imageSizeDeclarationsAreCorrect = false
-                        }
+                            val heightAttribute = imageElement.getAttribute("height")
+                            if (heightAttribute == null || heightAttribute.isEmpty() || !isInt(heightAttribute)) {
+                                println("Image $imageElement on $page has an erroneous 'height' attribute.")
+                                imageAttributesCorrect = false
+                            }
 
-                        val srcAttribute = it.getAttribute("src")
-                        if (srcAttribute == null || srcAttribute.isEmpty()) {
-                            println("Image $it on $page has an erroneous src attribute.")
-                            imageSizeDeclarationsAreCorrect = false
-                        }
+                            val srcAttribute = imageElement.getAttribute("src")
+                            if (srcAttribute == null || srcAttribute.isEmpty()) {
+                                println("Image ${imageElement.getAttribute("outerHTML")} on $page has an erroneous 'src' attribute.")
+                                imageAttributesCorrect = false
+                            }
 
-                        val image = ImageIO.read(URI.create(it.getAttribute("src")!!).toURL())
-                        val actualWidth = image.width
-                        val actualHeight = image.height
+                            if (imageAttributesCorrect) {
+                                val image = ImageIO.read(URI.create(srcAttribute!!).toURL())
+                                val actualWidth = image.width
+                                val actualHeight = image.height
 
-                        if (actualWidth != widthAttribute!!.toInt()) {
-                            println("Image $it on $page is declared with a width of $widthAttribute but its actual width is $actualWidth.")
-                            imageSizeDeclarationsAreCorrect = false
-                        }
+                                if (actualWidth != widthAttribute!!.toInt()) {
+                                    println("Image ${imageElement.getAttribute("outerHTML")} on $page has declared a width of $widthAttribute but its actual width is $actualWidth.")
+                                    imageSizeDeclarationsAreCorrect = false
+                                }
 
-                        if (actualHeight != heightAttribute!!.toInt()) {
-                            println("Image $it on $page is declared with a height of $heightAttribute but its actual height is $actualHeight.")
-                            imageSizeDeclarationsAreCorrect = false
+                                if (actualHeight != heightAttribute!!.toInt()) {
+                                    println("Image ${imageElement.getAttribute("outerHTML")} on $page has declared a height of $heightAttribute but its actual height is $actualHeight.")
+                                    imageSizeDeclarationsAreCorrect = false
+                                }
+                            } else {
+                                imageSizeDeclarationsAreCorrect = false
+                            }
+                        } catch (throwable: Throwable) {
+                            println(throwable)
+                            throw  throwable
                         }
                     }
                 }
             }
         }
 
-        assert(imageSizeDeclarationsAreCorrect)
+        assert(imageSizeDeclarationsAreCorrect) { "There are images with incorrectly declared dimensions." }
     }
 }
