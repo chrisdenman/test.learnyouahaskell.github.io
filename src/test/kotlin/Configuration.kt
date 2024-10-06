@@ -114,8 +114,8 @@ data class PositiveInt(val value: Int) {
 
 data class SeleniumBrowserStereotype(val value: String) {
     init {
-        require(value in listOf<String>("firefox", "chrome", "edge", "ie")) {
-            "Only: \"firefox\", \"chrome\", \"edge\" or \"ie\" are supported."
+        require(value in listOf<String>("firefox", "chrome", "edge")) {
+            "Only: \"firefox\", \"chrome\" or \"edge\" are supported."
         }
     }
 

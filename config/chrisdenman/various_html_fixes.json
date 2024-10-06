@@ -40,6 +40,9 @@
           "name": "chrome"
         },
         {
+          "name": "edge"
+        },
+        {
           "name": "firefox"
         }
       ],

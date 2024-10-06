@@ -2,7 +2,6 @@ import io.github.learnyouahaskell.test.config.BrowserTarget
 import io.github.learnyouahaskell.test.config.Configuration
 import io.github.learnyouahaskell.test.config.Dimension
 import org.openqa.selenium.remote.RemoteWebDriver
-import java.lang.System.getProperty
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.collections.mutableMapOf
@@ -10,22 +9,25 @@ import kotlin.collections.set
 
 class ConfigurationInterpolationProperties(val configuration: Configuration) {
 
-    companion object {
-        private val REQUIRED_JAVA_SYSTEM_PROPERTIES = listOf<String>(
-            "user.home", "user.dir", "user.country", "user.name", "user.timezone",
-            "java.version", "java.vm.version", "java.specification.version"
-        )
-
-        private fun addJavaSystemProperties(properties: MutableMap<String, Any>) {
-            REQUIRED_JAVA_SYSTEM_PROPERTIES.forEach { key-> properties[key] = getProperty(key) }
+    private fun addJavaSystemProperties(): ConfigurationInterpolationProperties =
+        this.apply {
+            System.getProperties().forEach { (key, value) ->
+                properties.put(key.toString(), value)
+            }
         }
-    }
+
+    private fun addEnvironmentVariables() =
+        this.apply {
+            properties.putAll(System.getenv())
+        }
 
     private val properties: MutableMap<String, Any> = mutableMapOf<String, Any>()
 
     init {
-        addJavaSystemProperties(properties)
-        addConfigurationProperties(configuration)
+        addJavaSystemProperties()
+            .addJavaSystemProperties()
+            .addEnvironmentVariables()
+            .addConfigurationProperties(configuration)
     }
 
     fun addStartTimeUtc(now: LocalDateTime) {
@@ -53,8 +55,8 @@ class ConfigurationInterpolationProperties(val configuration: Configuration) {
     fun addWebDriverProperties(webDriver: RemoteWebDriver) {
         webDriver.run {
             manage().window().position.run {
-                properties["browser.window.x"] = x
-                properties["browser.window.y"] = y
+                properties["browser.x"] = x
+                properties["browser.y"] = y
             }
 
             capabilities.run {

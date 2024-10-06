@@ -55,7 +55,7 @@ else
   gh repo clone "${OWNER_AND_REPO}" -- -b "${BRANCH}" --single-branch &>/dev/null \
     || { logError "Failed to clone $(sQuote "$(red "${OWNER_AND_REPO}")")." && exit 1 ; }
 
-  pushd "${REPO_DIR}" \
+  pushd "${REPO_DIR}" &>/dev/null \
     || { logError "Failed to push repository directory to $(sQuote "$(red "${REPO_DIR}")")." && exit 1 ; }
   SHA=$(git rev-parse @) && readonly SHA
   logInfo "Branch  $(sQuote "$(blue "${BRANCH}")") has SHA of $(sQuote "$(green "${SHA}")")."

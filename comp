@@ -31,15 +31,6 @@ fi
 
 FORMAT="${3}" && readonly FORMAT
 
-OUT_DIR="${4}"
-readonly OUT_DIR
-if [ ! -d "${OUT_DIR}" ]; then
-  logInfo "Creating output directory $(sQuote "$(green "${OUT_DIR}")")"
-  if ! mkdir -p  "${OUT_DIR}"; then
-    ERRORS=1 && logError "Could not create output directory."
-  fi
-fi
-
 if [ "${DIR1}" == "${DIR2}" ]; then
   ERRORS=1 && logError "Both arguments point to the same directory $(sQuote "$(red "${DIR1}")")"
 fi
@@ -47,6 +38,18 @@ fi
 # Ensure that Image Magick is installed
 identify -version &>/dev/null \
   || { ERRORS=1 && logError "ImageMagick $(sQuote "$(blue "identify")") not found on the system."; }
+
+# Create the output directory if there's no errors up to this point
+OUT_DIR="${4}"
+readonly OUT_DIR
+if [ "$ERRORS" -eq "0" ]; then
+  if [ ! -d "${OUT_DIR}" ]; then
+    logInfo "Creating output directory $(sQuote "$(green "${OUT_DIR}")")"
+    if ! mkdir -p  "${OUT_DIR}"; then
+      ERRORS=1 && logError "Could not create output directory."
+    fi
+  fi
+fi
 
 # If there's any error, exit
 if [ "$ERRORS" -ne "0" ]; then
