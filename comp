@@ -11,7 +11,11 @@
     highlighting the differences.
 '
 
-source common
+# shellcheck disable=SC2164
+SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+readonly SCRIPT_PATH
+
+source "${SCRIPT_PATH}"/common
 
 if [[ $# -ne 4 ]]; then
   logError "Usage DIR1 DIR2 FORMAT OUT_DIR."; exit 1
@@ -78,6 +82,6 @@ for BASENAME in ${FILESET_1}; do
   if [ "${FIRST_SIGNATURE}" != "${SECOND_SIGNATURE}" ]; then
     FLICKER_FILE="${OUT_DIR}/flicker_${BASENAME%.*}.gif"
     logInfo "Differences in $(sQuote "$(blue "${BASENAME}")"), generating flicker animation as $(sQuote "$(blue "${FLICKER_FILE}")")"
-    ./flicker "${FIRST_FILE}" "${SECOND_FILE}" "${FLICKER_FILE}"
+    "${SCRIPT_PATH}"/flicker "${FIRST_FILE}" "${SECOND_FILE}" "${FLICKER_FILE}"
   fi
 done

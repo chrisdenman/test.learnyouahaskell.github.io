@@ -18,13 +18,17 @@
       - The functional tests are executed.
 '
 
-source common
+# shellcheck disable=SC2164
+SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+readonly SCRIPT_PATH
+
+source "${SCRIPT_PATH}"/common
 
 # Constants
-readonly KTOR_DIRECTORY="ktor"
-readonly SELENIUM_DIRECTORY="selenium"
-readonly KTOR_START_MAX_ATTEMPTS="20"
-readonly SELENIUM_START_MAX_ATTEMPTS="20"
+readonly KTOR_DIRECTORY="${SCRIPT_PATH}/ktor"
+readonly SELENIUM_DIRECTORY="${SCRIPT_PATH}/selenium"
+readonly KTOR_START_MAX_ATTEMPTS="30"
+readonly SELENIUM_START_MAX_ATTEMPTS="30"
 readonly SERVICE_POLLING_WAIT="1s"
 
 function printUsageAndExit { logError "Usage: 'test $(blue "CONFIG_FILE")'"; exit 1; }
@@ -56,11 +60,11 @@ ID=$(jq -r '.id' "${CONFIG_FILE}") && readonly ID
 # Some initial user feedback
 logInfo "Executing test configuration $(sQuote "$(blue "${ID}")")."
 
-./clone_repository "${CONFIG_FILE}" || { logError "Failed to clone repository." && exit 1 ; }
+"${SCRIPT_PATH}"/clone_repository "${CONFIG_FILE}" || { logError "Failed to clone repository." && exit 1 ; }
 
 # Copy the Kotlin "Configuration" file from the root project to the ktor project
-logInfo "Copying the Kotlin configuration file $(sQuote "$(blue "src/test/kotlin/config/Configuration.kt")") to $(sQuote "$(green "servers/ktor/src/main/kotlin")")."
-cp -f src/test/kotlin/Configuration.kt "${KTOR_DIRECTORY}"/src/main/kotlin \
+logInfo "Copying the Kotlin configuration file $(sQuote "$(blue "${SCRIPT_PATH}/src/test/kotlin/config/Configuration.kt")") to $(sQuote "$(green "${KTOR_DIRECTORY}/servers/ktor/src/main/kotlin")")."
+cp -f "${SCRIPT_PATH}/src/test/kotlin/Configuration.kt" "${KTOR_DIRECTORY}"/src/main/kotlin \
   || {  logError "Failed to copy Configuration.kt file." && exit 1 ; }
 
 ### Start Selenium
@@ -75,7 +79,7 @@ if ! waitForStatusCode "Selenium" "${SELENIUM_URL}" "${SELENIUM_STATUS_CODE}" 1 
   pushd "${SELENIUM_DIRECTORY}" &>/dev/null || \
     { logError "Failed to push Ktor directory \
     $(sQuote "$(red "${SELENIUM_DIRECTORY}")") onto directory stack." && exit 1 ; }
-  gnome-terminal -- bash -i -c "./serve ${CONFIG_FILE}; read"
+  gnome-terminal -- bash -i -c "${SELENIUM_DIRECTORY}/serve ${CONFIG_FILE}; read"
   popd &>/dev/null || { logError "Failed to pop directory from stack." && exit 1 ; }
 fi
 
@@ -89,7 +93,7 @@ readonly KTOR_STATUS_CODE=404
 if ! waitForStatusCode "Ktor" "${KTOR_URL}" "${KTOR_STATUS_CODE}" 1 "${SERVICE_POLLING_WAIT}" &>/dev/null; then
   pushd "${KTOR_DIRECTORY}" &>/dev/null || { logError \
     "Failed to push Ktor directory $(sQuote "$(red "${KTOR_DIRECTORY}")") onto directory stack." && exit 1 ; }
-  gnome-terminal -- bash -i -c "./serve ${CONFIG_FILE}; read"
+  gnome-terminal -- bash -i -c "${KTOR_DIRECTORY}/serve ${CONFIG_FILE}; read"
   popd &>/dev/null || { logError "Failed to pop directory from stack." && exit 1 ; }
 fi
 
@@ -104,4 +108,7 @@ waitForStatusCode "Selenium" "${SELENIUM_URL}" "${SELENIUM_STATUS_CODE}" ${SELEN
 logInfo "Selenium is ready."
 
 # Run the Selenium tests
+pushd "${SCRIPT_PATH}" &>/dev/null || { logError \
+    "Failed to push working directory $(sQuote "$(red "${SCRIPT_PATH}")") onto directory stack." && exit 1 ; }
 ./gradlew test -Dio.github.learnyouahaskell.test.config="${CONFIG_FILE}"
+popd &>/dev/null || { logError "Failed to pop directory from stack." && exit 1 ; }
