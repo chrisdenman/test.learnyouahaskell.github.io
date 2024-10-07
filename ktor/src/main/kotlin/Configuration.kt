@@ -14,6 +14,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import java.io.File
 import java.net.URI
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -30,7 +32,45 @@ val json = Json {
     }
 }
 
-fun loadFrom(file: File): Configuration = json.decodeFromString(file.readText())
+fun loadFrom(file: File): Configuration = json.decodeFromString<Configuration>(file.readText()).also { validate(it) }
+
+fun interpolate(outputFileTemplate: String, properties: FilenameTemplateProperties): String =
+    properties
+        .get()
+        .entries
+        .fold(outputFileTemplate) { acc, (k, v) ->
+            acc.replace("{{${k}}}", v.toString())
+        }
+
+fun validate(configuration: Configuration){
+    val outputFilename = interpolate(
+        configuration.tests.screenshots.outputFileTemplate,
+        FilenameTemplateProperties(configuration).apply {
+            addStartTimeUtc(LocalDateTime.now())
+            addRelativePageUrl("relativePageUrl")
+            addBrowserProperties(
+                "browserTarget",
+                1024,
+                800,
+                0,
+                100,
+                "129_0_12.1"
+            )
+            addPlatformProperties(
+                "platformName",
+                100,
+                0
+            )
+            addTileIndex(0)
+        }
+    )
+
+    Regex("(\\{\\{)(.*?)}}").findAll(outputFilename).toList().run {
+        if (this.isNotEmpty()) {
+            throw IllegalStateException("tests.screenshots.output_file_template contains unknown tokens: ${this.map { it.value }.joinToString()}")
+        }
+    }
+}
 
 object DateTimeFormatterSerializer : KSerializer<DateTimeFormatter> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateTimeFormatter", PrimitiveKind.STRING)
@@ -207,3 +247,74 @@ data class Serving(
     @SerialName("html-content-root") @Contextual val htmlContentRoot: ExtantDirectory,
     @Transient val uri: URI = URI.create("$scheme://$bindAddress:$port")
 )
+
+class FilenameTemplateProperties(val configuration: Configuration) {
+    private fun addJavaSystemProperties(): FilenameTemplateProperties =
+        this.apply {
+            System.getProperties().forEach { (key, value) ->
+                properties.put(key.toString(), value)
+            }
+        }
+
+    private fun addEnvironmentVariables() =
+        this.apply {
+            properties.putAll(System.getenv())
+        }
+
+    private val properties: MutableMap<String, Any> = mutableMapOf<String, Any>()
+
+    init {
+        addJavaSystemProperties()
+            .addJavaSystemProperties()
+            .addEnvironmentVariables()
+            .addConfigurationProperties(configuration)
+    }
+
+    fun addStartTimeUtc(now: LocalDateTime) {
+        properties["start_time_utc"] = now
+            .atOffset(ZoneOffset.UTC)
+            .format(configuration.tests.screenshots.dateTimeFormatter)
+    }
+
+    fun addRelativePageUrl(url: String) {
+        properties["relative_page_url"] = if (url.isEmpty()) "ROOT" else url
+    }
+
+    fun addTileIndex(index: Int) {
+        properties["tile.index"] = index
+    }
+
+    fun addBrowserProperties(name: String, width: Int, height: Int, x: Int, y: Int, browserVersion: String) {
+        properties["browser.name"] = name
+        properties["browser.width"] = width.toInt()
+        properties["browser.height"] = height.toInt()
+        properties["browser.x"] = x
+        properties["browser.y"] = y
+        properties["browser.version"] = browserVersion
+    }
+
+    fun addPlatformProperties(name: String, majorVersion: Int, minorVersion: Int) {
+        properties["platform.name"] = name
+        properties["platform.major_version"] = majorVersion.toInt()
+        properties["platform.minor_version"] = minorVersion.toInt()
+    }
+
+    fun addConfigurationProperties(configuration: Configuration) {
+        configuration.run {
+            properties.putAll(
+                listOf<Pair<String, Any>>(
+                    "id" to id,
+                    "github.owner" to github.owner,
+                    "github.repository" to github.repository,
+                    "github.html_content_root" to github.htmlContentRoot,
+                    "github.branch" to github.branch,
+                    "github.sha" to github.sha,
+                    "screenshots.maximum_height_pixels" to tests.screenshots.maximumHeightPixels.toInt(),
+                    "screenshots.image_format" to tests.screenshots.imageFormat.toString()
+                )
+            )
+        }
+    }
+
+    fun get(): Map<String, Any> = properties.toMap()
+}
