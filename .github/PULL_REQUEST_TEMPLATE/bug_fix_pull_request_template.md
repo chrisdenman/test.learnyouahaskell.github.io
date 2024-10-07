@@ -6,7 +6,7 @@ your pull request to the best possible team for review.
 
 ### Why?:
 
-Closes: #
+Fixes: #
 
 If there's an existing issue for your change, please link to it above.
 
