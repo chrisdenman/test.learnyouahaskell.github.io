@@ -1,11 +1,12 @@
 package io.github.learnyouahaskell.test
 
-import ConfigurationInterpolationProperties
 import com.assertthat.selenium_shutterbug.core.Capture
 import com.assertthat.selenium_shutterbug.core.PageSnapshot
 import com.assertthat.selenium_shutterbug.core.Shutterbug.shootPage
 import io.github.learnyouahaskell.test.config.Configuration
+import io.github.learnyouahaskell.test.config.FilenameTemplateProperties
 import io.github.learnyouahaskell.test.config.SeleniumBrowserStereotype
+import io.github.learnyouahaskell.test.config.interpolate
 import io.github.learnyouahaskell.test.config.loadFrom
 import io.github.learnyouahaskell.test.util.BufferedImageUtils.Companion.getVerticalTiles
 import io.github.learnyouahaskell.test.util.FileUtils.Companion.dirExistsOrCreated
@@ -27,10 +28,11 @@ class ScreenshotTests {
 
     val configuration = loadFrom(File(getProperty("io.github.learnyouahaskell.test.config")))
 
-    private fun buildTileFile(properties: ConfigurationInterpolationProperties): File =
-        File(properties.get().entries.fold(configuration.tests.screenshots.outputFileTemplate) { acc, (k, v) ->
-            acc.replace("{{${k}}}", v.toString())
-        }.replace("/", getDefault().separator))
+    private fun buildTileFile(properties: FilenameTemplateProperties): File =
+        File(
+            interpolate(configuration.tests.screenshots.outputFileTemplate, properties)
+                .replace("/", getDefault().separator)
+        )
 
     private fun takeSnapshot(webDriver: RemoteWebDriver, configuration: Configuration): PageSnapshot =
         shootPage(
@@ -52,8 +54,7 @@ class ScreenshotTests {
                     browserStereotypeNameToCapabilities[browserTarget.name]!!
                         .constructors
                         .first()
-                        .call()
-                    ,
+                        .call(),
                     IS_WEBDRIVER_TRACING_ENABLED
                 )
                 AutoCloseable { webDriver.quit() }.use {
@@ -74,12 +75,25 @@ class ScreenshotTests {
                                 forEachIndexed { tileIndex, tile ->
                                     val outputFile =
                                         buildTileFile(
-                                            ConfigurationInterpolationProperties(configuration).apply {
-                                                addStartTimeUtc(startTime)
-                                                addRelativePageUrl(relativePageUrl)
-                                                addBrowserProperties(browserTarget, dimension)
-                                                addWebDriverProperties(webDriver)
-                                                addTileIndex(tileIndex)
+                                            FilenameTemplateProperties(configuration).apply {
+                                                webDriver.capabilities.let { capabilities ->
+                                                    addStartTimeUtc(startTime)
+                                                    addRelativePageUrl(relativePageUrl)
+                                                    addBrowserProperties(
+                                                        browserTarget.name.toString(),
+                                                        dimension.width.toInt(),
+                                                        dimension.height.toInt(),
+                                                        webDriver.manage().window().position.x,
+                                                        webDriver.manage().window().position.y,
+                                                        capabilities.browserVersion
+                                                    )
+                                                    addPlatformProperties(
+                                                        webDriver.capabilities.platformName.name,
+                                                        capabilities.platformName.majorVersion,
+                                                        capabilities.platformName.minorVersion
+                                                    )
+                                                    addTileIndex(tileIndex)
+                                                }
                                             }
                                         )
 
@@ -101,11 +115,12 @@ class ScreenshotTests {
     }
 
     companion object {
-        val browserStereotypeNameToCapabilities: Map<SeleniumBrowserStereotype, KClass<out MutableCapabilities>> = mapOf(
-            SeleniumBrowserStereotype("firefox") to FirefoxOptions::class,
-            SeleniumBrowserStereotype("chrome") to ChromeOptions::class,
-            SeleniumBrowserStereotype("edge") to EdgeOptions::class
-        )
+        val browserStereotypeNameToCapabilities: Map<SeleniumBrowserStereotype, KClass<out MutableCapabilities>> =
+            mapOf(
+                SeleniumBrowserStereotype("firefox") to FirefoxOptions::class,
+                SeleniumBrowserStereotype("chrome") to ChromeOptions::class,
+                SeleniumBrowserStereotype("edge") to EdgeOptions::class
+            )
 
         const val IS_WEBDRIVER_TRACING_ENABLED = false
     }
