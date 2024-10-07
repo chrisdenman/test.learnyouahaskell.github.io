@@ -16,6 +16,8 @@
       - Ktor is spawned to serve the cloned repository content.
       - Selenium server is spawned to accept incoming functional test instructions against different browser targets.
       - The functional tests are executed.
+
+    This change is a test
 '
 
 # shellcheck disable=SC2164
