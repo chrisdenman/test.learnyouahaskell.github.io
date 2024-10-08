@@ -163,6 +163,12 @@ More information can be found within the [`comp`](./comp) script itself.
 
 ***
 
+# Contributing
+
+Please read the [guide](.github/CONTRIBUTING.md) to get involved.
+
+***
+
 # Links
 
 - [Ktor - ktor.io](https://ktor.io/)
