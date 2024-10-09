@@ -21,6 +21,7 @@ import java.util.Locale
 
 val json = Json {
     serializersModule = SerializersModule {
+        contextual(Template::class, TemplateStringSerializer)
         contextual(DateTimeFormatter::class, DateTimeFormatterSerializer)
         contextual(ExtantDirectory::class, ExtantDirectorySerializer)
         contextual(HttpScheme::class, HttpSchemeSerializer)
@@ -32,7 +33,7 @@ val json = Json {
     }
 }
 
-fun loadFrom(file: File): Configuration = json.decodeFromString<Configuration>(file.readText()).also { validate(it) }
+fun loadFrom(file: File): Configuration = json.decodeFromString<Configuration>(file.readText())
 
 fun interpolate(outputFileTemplate: String, properties: FilenameTemplateProperties): String =
     properties
@@ -42,34 +43,10 @@ fun interpolate(outputFileTemplate: String, properties: FilenameTemplateProperti
             acc.replace("{{${k}}}", v.toString())
         }
 
-fun validate(configuration: Configuration){
-    val outputFilename = interpolate(
-        configuration.tests.screenshots.outputFileTemplate,
-        FilenameTemplateProperties(configuration).apply {
-            addStartTimeUtc(LocalDateTime.now())
-            addRelativePageUrl("relativePageUrl")
-            addBrowserProperties(
-                "browserTarget",
-                1024,
-                800,
-                0,
-                100,
-                "129_0_12.1"
-            )
-            addPlatformProperties(
-                "platformName",
-                100,
-                0
-            )
-            addTileIndex(0)
-        }
-    )
-
-    Regex("(\\{\\{)(.*?)}}").findAll(outputFilename).toList().run {
-        if (this.isNotEmpty()) {
-            throw IllegalStateException("tests.screenshots.output_file_template contains unknown tokens: ${this.map { it.value }.joinToString()}")
-        }
-    }
+object TemplateStringSerializer : KSerializer<Template> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("TemplateString", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: Template) = encoder.encodeString(value.toString())
+    override fun deserialize(decoder: Decoder): Template = Template(decoder.decodeString())
 }
 
 object DateTimeFormatterSerializer : KSerializer<DateTimeFormatter> {
@@ -141,6 +118,42 @@ data class NonNegativeInt(val value: Int) {
 
     fun toInt() = value
     override fun toString(): String = value.toString()
+}
+
+data class Template(val pattern: String) {
+    init {
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH-mm-ss.SSSX")
+
+        val filenameTemplateProperties = FilenameTemplateProperties().apply {
+            addStartTimeUtc(LocalDateTime.now(), dateTimeFormatter)
+            addRelativePageUrl("relativePageUrl")
+            addBrowserProperties(
+                "browserTarget",
+                1024,
+                800,
+                0,
+                100,
+                "129_0_12.1"
+            )
+            addPlatformProperties(
+                "platformName",
+                100,
+                0
+            )
+            addTileIndex(0)
+            addIdProperty("id")
+            addGitHubProperties("owner", "repository", "branch", "sha", "htmlContentRoot")
+            addScreenshotsProperties(1000, "png")
+        }
+
+        Regex("(\\{\\{)(.*?)}}")
+            .findAll(interpolate(pattern, filenameTemplateProperties))
+            .toList().run {
+                require(this.isNotEmpty()) {
+                    "tests.screenshots.output_file_template contains unknown tokens: ${this.map { it.value }.joinToString()}"
+                }
+            }
+    }
 }
 
 data class PositiveInt(val value: Int) {
@@ -224,7 +237,7 @@ data class RemoteWebDriver(
 
 @Serializable
 data class ScreenShots(
-    @SerialName("output_file_template") val outputFileTemplate: String,
+    @Contextual @SerialName("output_file_template") val outputFileTemplate: Template,
     @Contextual @SerialName("dateTime_formatter_pattern") val dateTimeFormatter: DateTimeFormatter,
     @Contextual @SerialName("maximum_height_pixels") val maximumHeightPixels: PositiveInt,
     @Contextual @SerialName("scroll_timeout_milliseconds") val scrollTimeoutMilliseconds: PositiveInt,
@@ -248,7 +261,14 @@ data class Serving(
     @Transient val uri: URI = URI.create("$scheme://$bindAddress:$port")
 )
 
-class FilenameTemplateProperties(val configuration: Configuration) {
+class FilenameTemplateProperties() {
+    private val properties: MutableMap<String, Any> = mutableMapOf<String, Any>()
+
+    init {
+        addJavaSystemProperties()
+        addEnvironmentVariables()
+    }
+
     private fun addJavaSystemProperties(): FilenameTemplateProperties =
         this.apply {
             System.getProperties().forEach { (key, value) ->
@@ -261,19 +281,10 @@ class FilenameTemplateProperties(val configuration: Configuration) {
             properties.putAll(System.getenv())
         }
 
-    private val properties: MutableMap<String, Any> = mutableMapOf<String, Any>()
-
-    init {
-        addJavaSystemProperties()
-            .addJavaSystemProperties()
-            .addEnvironmentVariables()
-            .addConfigurationProperties(configuration)
-    }
-
-    fun addStartTimeUtc(now: LocalDateTime) {
+    fun addStartTimeUtc(now: LocalDateTime, dateTimeFormatter: DateTimeFormatter) {
         properties["start_time_utc"] = now
             .atOffset(ZoneOffset.UTC)
-            .format(configuration.tests.screenshots.dateTimeFormatter)
+            .format(dateTimeFormatter)
     }
 
     fun addRelativePageUrl(url: String) {
@@ -285,35 +296,51 @@ class FilenameTemplateProperties(val configuration: Configuration) {
     }
 
     fun addBrowserProperties(name: String, width: Int, height: Int, x: Int, y: Int, browserVersion: String) {
-        properties["browser.name"] = name
-        properties["browser.width"] = width.toInt()
-        properties["browser.height"] = height.toInt()
-        properties["browser.x"] = x
-        properties["browser.y"] = y
-        properties["browser.version"] = browserVersion
+        properties.putAll(
+            listOf<Pair<String, Any>>(
+                "browser.name" to name,
+                "browser.width" to width.toInt(),
+                "browser.height" to height.toInt(),
+                "browser.x" to x,
+                "browser.y" to y,
+                "browser.version" to browserVersion
+            )
+        )
     }
 
     fun addPlatformProperties(name: String, majorVersion: Int, minorVersion: Int) {
-        properties["platform.name"] = name
-        properties["platform.major_version"] = majorVersion.toInt()
-        properties["platform.minor_version"] = minorVersion.toInt()
+        properties.putAll(
+            listOf<Pair<String, Any>>(
+                "platform.name" to name,
+                "platform.major_version" to majorVersion.toInt(),
+                "platform.minor_version" to minorVersion.toInt()
+            )
+        )
     }
 
-    fun addConfigurationProperties(configuration: Configuration) {
-        configuration.run {
-            properties.putAll(
-                listOf<Pair<String, Any>>(
-                    "id" to id,
-                    "github.owner" to github.owner,
-                    "github.repository" to github.repository,
-                    "github.html_content_root" to github.htmlContentRoot,
-                    "github.branch" to github.branch,
-                    "github.sha" to github.sha,
-                    "screenshots.maximum_height_pixels" to tests.screenshots.maximumHeightPixels.toInt(),
-                    "screenshots.image_format" to tests.screenshots.imageFormat.toString()
-                )
+    fun addIdProperty(id: String) {
+        properties["id"] = id
+    }
+
+    fun addGitHubProperties(owner: String, repository: String, htmlContentRoot: String, branch: String, sha: String, ) {
+        properties.putAll(
+            listOf<Pair<String, Any>>(
+                "github.owner" to owner,
+                "github.repository" to repository,
+                "github.html_content_root" to htmlContentRoot,
+                "github.branch" to branch,
+                "github.sha" to sha,
             )
-        }
+        )
+    }
+
+    fun addScreenshotsProperties(maximumHeightPixels: Int, imageFormat: String) {
+        properties.putAll(
+            listOf<Pair<String, Any>>(
+                "screenshots.maximum_height_pixels" to maximumHeightPixels,
+                "screenshots.image_format" to imageFormat
+            )
+        )
     }
 
     fun get(): Map<String, Any> = properties.toMap()

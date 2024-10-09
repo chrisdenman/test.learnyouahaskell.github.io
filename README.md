@@ -1,4 +1,4 @@
-# [test.learnyouahaskell.github.io 0.0.2](https://github.com/chrisdenman/test.learnyouahaskell.github.io)
+# [test.learnyouahaskell.github.io 0.0.3](https://github.com/chrisdenman/test.learnyouahaskell.github.io)
 
 This project provides functional testing for
 the [Learn You A Haskell for Great Good](https://github.com/learnyouahaskell/learnyouahaskell.github.io) GitHub project,

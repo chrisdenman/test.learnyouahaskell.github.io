@@ -30,7 +30,7 @@ class ScreenshotTests {
 
     private fun buildTileFile(properties: FilenameTemplateProperties): File =
         File(
-            interpolate(configuration.tests.screenshots.outputFileTemplate, properties)
+            interpolate(configuration.tests.screenshots.outputFileTemplate.toString(), properties)
                 .replace("/", getDefault().separator)
         )
 
@@ -75,9 +75,12 @@ class ScreenshotTests {
                                 forEachIndexed { tileIndex, tile ->
                                     val outputFile =
                                         buildTileFile(
-                                            FilenameTemplateProperties(configuration).apply {
+                                            FilenameTemplateProperties().apply {
                                                 webDriver.capabilities.let { capabilities ->
-                                                    addStartTimeUtc(startTime)
+                                                    addStartTimeUtc(
+                                                        startTime,
+                                                        configuration.tests.screenshots.dateTimeFormatter
+                                                    )
                                                     addRelativePageUrl(relativePageUrl)
                                                     addBrowserProperties(
                                                         browserTarget.name.toString(),
