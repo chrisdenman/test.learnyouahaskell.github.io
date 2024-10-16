@@ -1,4 +1,4 @@
-# [test.learnyouahaskell.github.io 0.0.2](https://github.com/chrisdenman/test.learnyouahaskell.github.io)
+# [test.learnyouahaskell.github.io 0.1.0](https://github.com/chrisdenman/test.learnyouahaskell.github.io)
 
 This project provides functional testing for
 the [Learn You A Haskell for Great Good](https://github.com/learnyouahaskell/learnyouahaskell.github.io) GitHub project,
@@ -14,57 +14,58 @@ A typical configuration file for executing the tests is as follows:
 
 <pre>
 {
-  "id": "production",                           🔵 An identifier for this configuration. 
-  "github": {                                   🟣 Git Hub configuration... 
-    "owner": "learnyouahaskell",                🔵 The owner of the repository to test. 
-    "repository": "learnyouahaskell.github.io", 🔵 The repository to test. 
-    "branch": "main",                           🔵 The branch to test.
-    "html_content_root": "docs",                🔵 The relative repository path from which to serve content.
-    "sha": "64...0a"                            🟢 The branch under test's Git SHA. Automatically generated. 
+  "id": "production",                                 🔵 An identifier for this configuration. 
+  "github": {                                         🟣 Git Hub configuration... 
+    "owner": "learnyouahaskell",                      🔵 The owner of the repository to test. 
+    "repository": "learnyouahaskell.github.io",       🔵 The repository to test. 
+    "branch": "main",                                 🔵 The branch to test.
+    "html_content_root": "docs",                      🔵 The relative repository path from which to serve content 
   },
   "tests": {                                    
-    "relative_page_urls": [                     🟣 A list of relative URL strings to screen-shot...
+    "relative_page_urls": [                           🟣 A list of relative URL strings to screen-shot...
       "",
       "faq.html",
       "chapters.html"
     ],
-    "screenshots": {                            🟣 Screenshot configuration... 
-                                                🔵 A string interpolation template screenshot filenames.
-                                                🔵   Path segments are separated with '/' which are replaced with their 
-                                                🔵   platform dependent equivalents at run-time.
-                                                🔵 See later on for a full list of permitted tokens.
+    "screenshots": {                                  🟣 Screenshot configuration... 
+                                                      🔵 A string interpolation template screenshot filenames.
+                                                      🔵   Path segments are separated with '/' which are replaced with their 
+                                                      🔵   platform dependent equivalents at run-time.
+                                                      🔵 See later on for a full list of permitted tokens.
       "output_file_template": "{{user.dir}}/screenshots/{{github.owner}}-{{github.repository}}-{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}-{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
-                                                🔵 A Java DateTimeFormatter pattern for formatting the 'start_time_utc'.  
+                                                      🔵 A Java DateTimeFormatter pattern for formatting the 'start_time_utc'.  
       "dateTime_formatter_pattern": "uuuu-MM-dd'T'HH:mm:ss.SSSX", 
-      "maximum_height_pixels": 2048,            🔵 The maximum height of a screenshot in pixels. 
-                                                🔵   Taller images are split into numbered tiles.
-      "scroll_timeout_milliseconds": 100,       🔵 The maximum time to wait for Selenium to scroll the page under test.
-      "image_format": "png"                     🔵 The screenshot output image format.
-    },
-    "browsers": {
-      "targets": [                              🔵 An array of browser name specifications. 
-                                                🔵   Only: 'chrome', 'edge' & 'firefox' are currently permitted.
-        {"name": "chrome"},
-        {"name": "firefox"}
-      ],
-      "dimensions": [                           🟣 A JSON array of browser window dimensions...
-        {
-          "width": 860,                         🔵 Desired browser width in pixels.
-          "height": 800                         🔵 Desired browser height in pixels.
-        }
-      ]
-    },
-    "remote-web-driver": {                      🟣 Selenium configuration...
-      "scheme": "http",                         🔵 The URL scheme. Only 'http' currently permitted.
-      "bind-address": "0.0.0.0",                🔵 The IP address or host to bind to.
-      "port": 4444                              🔵 The port number on which to expose Selenium.
-    }  
-  },  
-  "serving": {                                  🟣 HTTP server configuration... 
-    "scheme": "http",                           🔵 The URL scheme. Only 'http' currently permitted.
-    "bind-address": "0.0.0.0",                  🔵 The IP address or host to bind to. 
-    "port": 8888,                               🔵 The desired port number.
-    "html-content-root": ...                    🟢 The filesystem path, content is served from. Automatically generated.
+      "maximum_height_pixels": 2048,                  🔵 The maximum height of a screenshot in pixels. 
+                                                      🔵   Taller images are split into numbered tiles.
+      "scroll_timeout_milliseconds": 100,             🔵 The maximum time to wait for Selenium to scroll the page under test.
+      "image_format": "png"                           🔵 The screenshot output image format.
+    },                                                
+    "browsers": {                                     
+      "targets": [                                    🔵 An array of browser name specifications. 
+                                                      🔵   Only: 'chrome', 'edge' & 'firefox' are currently permitted.
+        {"name": "chrome"},                           
+        {"name": "firefox"}                           
+      ],                                              
+      "dimensions": [                                 🟣 A JSON array of browser window dimensions...
+        {                                             
+          "width": 860,                               🔵 Desired browser width in pixels.
+          "height": 800                               🔵 Desired browser height in pixels.
+        }                                          
+      ]                                            
+    },                                             
+    "remote-web-driver": {                            🟣 Selenium configuration...
+      "scheme": "http",                               🔵 The URL scheme. Only 'http' currently permitted.
+      "bind-address": "0.0.0.0",                      🔵 The IP address or host to bind to.
+      "port": 4444                                    🔵 The port number on which to expose Selenium.
+    }                                              
+  },                                               
+  "serving": {                                        🟣 HTTP server configuration... 
+    "port": 8888,                                     🔵 HTTP port number. 
+    "tls": {                                          🟣 Optional TLS configuration for HTTPS serving...
+      "certificate-alias": "test.lyah"                🔵 Optional keystore certificate alias
+      "keystore-filename": "build/lyah_keystore.jks", 🔵 Optional location for the generated JVM keystore location
+      "port": 8443                                    🔵 HTTPs port number.                                    
+    }
   }
 }
 </pre>
@@ -109,10 +110,10 @@ The following tokens and their corresponding replacements, are listed below:
 
 - Java (see [Testing](#Testing))
 
-Although the JVM/Gradle applications may be run using any system with a suitable Java installed, the supporting scripts
+Although the JVM/Gradle applications may be run using any system with a suitable Java installation. The supporting scripts
 are written in Bash and likely require an up-to-date Linux based system.
 
-The Bash scripts check their own dependencies and fail-fast if these are not met.
+The Bash scripts check their own dependency requirements.
 
 SDKMAN! initialization files [`.sdkmanrc`](./.sdkmanrc) files are included for convenience.
 
@@ -134,10 +135,9 @@ More information can be found within the [`test`](./test) script itself, but as 
 
 The intention of the screenshot functionality is twofold:
 
-1. To provide quick comfort that the site has not
-   suffered drastic regressions.
-2. To provide a means of comparing image-sets programmatically to ensure
-   identical presentations.
+1. To provide quick comfort that [learnyouahaskell.github.io](https://learnyouahaskell.github.io) has not
+   suffered any drastic regression.
+2. To provide an easy means of comparing page presentation across different browsers spanning code and content changes.
 
 The included script [`comp`](./comp) may be used to compare screenshot output sets. This is useful when
 comparing screenshots from a known good branch with those of another.
@@ -179,6 +179,7 @@ Please read the [guide](.github/CONTRIBUTING.md) to get involved.
 - [Java System Properties - oracle.com](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html)
 - [SDKMAN! - sdkman.io](https://sdkman.io/)
 - [Selenium - www.selenium.dev](https://www.selenium.dev/)
+- [BASH Reference Manual - gnu.org](https://www.gnu.org/software/bash/manual/bash.html)
 
 ***
 

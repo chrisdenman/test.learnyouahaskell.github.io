@@ -1,4 +1,4 @@
-package io.github.learnyouahaskell.test
+package io.github.learnyouahaskell.test.site
 
 class Site {
     companion object {

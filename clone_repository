@@ -15,10 +15,10 @@ function printUsageAndExit { logError "Usage: 'clone_repository $(blue "CONFIG_F
 # Check that we have a single argument
 if [[ $# -ne 1 ]]; then printUsageAndExit; fi
 
-CONFIG_FILE="${1}" && readonly CONFIG_FILE
+CONFIG_FILE_PATH="${1}" && readonly CONFIG_FILE_PATH
 # Check that the provided configuration file argument value exists
-if [[ ! -f $CONFIG_FILE ]]; then
-  logError "Configuration file $(sQuote "$(red "${CONFIG_FILE}")") inaccessible or nonexistent." && printUsageAndExit
+if [[ ! -f $CONFIG_FILE_PATH ]]; then
+  logError "Configuration file $(sQuote "$(red "${CONFIG_FILE_PATH}")") inaccessible or nonexistent." && printUsageAndExit
 fi
 
 ERRORS=0
@@ -33,15 +33,15 @@ if [ "$ERRORS" -ne "0" ]; then
   logError "Exiting due to previous errors."; exit 1
 else
   # Read the configuration file's identity
-  ID=$(jq -r '.id' "${CONFIG_FILE}") && readonly ID
+  ID=$(jq -r '.id' "${CONFIG_FILE_PATH}") && readonly ID
   # Some initial user feedback
   logInfo "Using test configuration $(sQuote "$(blue "${ID}")")."
 
-  OWNER=$(jq -r '.github.owner' "${CONFIG_FILE}") && readonly OWNER
-  REPOSITORY=$(jq -r '.github.repository' "${CONFIG_FILE}") && readonly REPOSITORY
-  BRANCH=$(jq -r '.github.branch' "${CONFIG_FILE}") && readonly BRANCH
+  OWNER=$(jq -r '.github.owner' "${CONFIG_FILE_PATH}") && readonly OWNER
+  REPOSITORY=$(jq -r '.github.repository' "${CONFIG_FILE_PATH}") && readonly REPOSITORY
+  BRANCH=$(jq -r '.github.branch' "${CONFIG_FILE_PATH}") && readonly BRANCH
   OWNER_AND_REPO="${OWNER}/${REPOSITORY}" && readonly OWNER_AND_REPO
-  HTML_CONTENT_ROOT=$(jq -r '.github.html_content_root' "${CONFIG_FILE}") && readonly HTML_CONTENT_ROOT
+  HTML_CONTENT_ROOT=$(jq -r '.github.html_content_root' "${CONFIG_FILE_PATH}") && readonly HTML_CONTENT_ROOT
 
   WORKING_DIR="$(mktemp -d)" \
     || { logError "Failed to create working directory $(sQuote "$(red "${WORKING_DIR}")")." && exit 1 ; }
@@ -70,10 +70,9 @@ else
 
   popd &>/dev/null \
     || { logError "Failed to pop owner directory to $(sQuote "$(red "${OWNER_DIR}")")." && exit 1 ; }
-  logInfo "Setting $(sQuote "$(blue "${ID}")") configuration property $(sQuote "$(blue ".serving.html-content-root")") to $(sQuote "$(green "${REPO_HTML_CONTENT_ROOT}")")."
-
+  logInfo "Setting configuration property $(sQuote "$(blue ".serving.html-content-root")") to $(sQuote "$(green "${REPO_HTML_CONTENT_ROOT}")")."
   # Update the serving.html-content_root property
-  cat <<< "$(jq ".serving.\"html-content-root\" |= \"${REPO_HTML_CONTENT_ROOT}\"" "${CONFIG_FILE}")" > "${CONFIG_FILE}"
+  cat <<< "$(jq ".serving.\"html-content-root\" |= \"${REPO_HTML_CONTENT_ROOT}\"" "${CONFIG_FILE_PATH}")" > "${CONFIG_FILE_PATH}"
   # Update the github.sha property
-  cat <<< "$(jq ".github.\"sha\" |= \"${SHA}\"" "${CONFIG_FILE}")" > "${CONFIG_FILE}"
+  cat <<< "$(jq ".github.\"sha\" |= \"${SHA}\"" "${CONFIG_FILE_PATH}")" > "${CONFIG_FILE_PATH}"
 fi

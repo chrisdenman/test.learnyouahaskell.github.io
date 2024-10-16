@@ -1,10 +1,10 @@
-package io.github.learnyouahaskell.test
+package io.github.learnyouahaskell.test.site
 
-import io.github.learnyouahaskell.test.config.Configuration
+import io.github.learnyouahaskell.test.configuration.Configuration
 
 class HostedPages(configuration: Configuration) {
 
-    val landing: Page = Page(configuration.serving.uri, "landing")
+    val landing: Page = Page(configuration.httpsUri, "landing")
     val faq: Page = landing.resolve("faq.html", "faq")
     val chapters: Page = landing.resolve("chapters.html", "chapters")
     val chapterIntroduction: Page = landing.resolve("introduction.html", "chapter-introduction")
@@ -47,5 +47,6 @@ class HostedPages(configuration: Configuration) {
         chapterFunctionsApplicativeFunctorsAndMonoids,
         chapterAFistfulOfMonads,
         chapterForAFewMonadsMore,
-        chapterZippers)
+        chapterZippers
+    )
 }
