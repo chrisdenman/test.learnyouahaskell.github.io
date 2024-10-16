@@ -1,3 +1,5 @@
+package io.github.learnyouahaskell.test.util
+
 import java.net.URI
 
 data class Image(val relativeUri: URI, val altText: String) {

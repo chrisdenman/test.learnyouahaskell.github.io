@@ -1,4 +1,6 @@
-import io.github.learnyouahaskell.test.config.Configuration
+package io.github.learnyouahaskell.test.site
+
+import io.github.learnyouahaskell.test.configuration.Configuration
 import java.net.URI.create as createUri
 
 class ExternalPages(configuration: Configuration) {

@@ -64,8 +64,10 @@
     }
   },
   "serving": {
-    "scheme": "http",
-    "bind-address": "0.0.0.0",
-    "port": 8888
+    "port": 8080,
+    "tls": {
+      "keyStore-filename": "build/lyah.jks",
+      "port": 8443
+    }
   }
 }

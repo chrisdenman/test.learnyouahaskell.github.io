@@ -1,9 +1,13 @@
+package io.github.learnyouahaskell.test.site
+
+import io.github.learnyouahaskell.test.util.Image
+
 class HostedImages {
 
     companion object {
         const val IMAGE_ASSETS_URI_PREFIX = "assets/images"
         private fun createImageWithUriPrefix(relativeUri: String, altAttribute: String) = 
-            Image.create("${IMAGE_ASSETS_URI_PREFIX}/${relativeUri}", altAttribute)
+            Image.Companion.create("${IMAGE_ASSETS_URI_PREFIX}/${relativeUri}", altAttribute)
     }
 
     val turtle = createImageWithUriPrefix("faq/turtle.png", "turtle???")

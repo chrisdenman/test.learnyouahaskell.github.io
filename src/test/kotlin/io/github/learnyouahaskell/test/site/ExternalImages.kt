@@ -1,3 +1,6 @@
+package io.github.learnyouahaskell.test.site
+
+import io.github.learnyouahaskell.test.util.Image
 import java.net.URI.create as createUri
 
 class ExternalImages {

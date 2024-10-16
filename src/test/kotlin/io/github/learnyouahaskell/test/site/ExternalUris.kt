@@ -1,4 +1,4 @@
-package io.github.learnyouahaskell.test
+package io.github.learnyouahaskell.test.site
 
 import java.net.URI
 import java.net.URI.create as createUri

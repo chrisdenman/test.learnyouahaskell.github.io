@@ -1,4 +1,4 @@
-package io.github.learnyouahaskell.test.config
+package io.github.learnyouahaskell.test.configuration
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
@@ -22,6 +22,7 @@ import java.util.Locale
 val json = Json {
     serializersModule = SerializersModule {
         contextual(DateTimeFormatter::class, DateTimeFormatterSerializer)
+        contextual(File::class, FileAsStringSerializer)
         contextual(ExtantDirectory::class, ExtantDirectorySerializer)
         contextual(HttpScheme::class, HttpSchemeSerializer)
         contextual(ImageFormat::class, ImageFormatSerializer)
@@ -42,7 +43,7 @@ fun interpolate(outputFileTemplate: String, properties: FilenameTemplateProperti
             acc.replace("{{${k}}}", v.toString())
         }
 
-fun validate(configuration: Configuration){
+fun validate(configuration: Configuration) {
     val outputFilename = interpolate(
         configuration.tests.screenshots.outputFileTemplate,
         FilenameTemplateProperties(configuration).apply {
@@ -67,7 +68,11 @@ fun validate(configuration: Configuration){
 
     Regex("(\\{\\{)(.*?)}}").findAll(outputFilename).toList().run {
         if (this.isNotEmpty()) {
-            throw IllegalStateException("tests.screenshots.output_file_template contains unknown tokens: ${this.map { it.value }.joinToString()}")
+            throw IllegalStateException(
+                "tests.screenshots.output_file_template contains unknown tokens: ${
+                    this.map { it.value }.joinToString()
+                }"
+            )
         }
     }
 }
@@ -97,6 +102,19 @@ object ImageFormatSerializer : KSerializer<ImageFormat> {
     override fun deserialize(decoder: Decoder): ImageFormat = ImageFormat(decoder.decodeString())
 }
 
+object FileAsStringSerializer : KSerializer<File> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("kotlinx.serialization.FileAsStringSerializer", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: File) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): File {
+        return File(decoder.decodeString())
+    }
+}
+
 object NonNegativeIntSerializer : KSerializer<NonNegativeInt> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("NonNegativeInt", PrimitiveKind.INT)
     override fun serialize(encoder: Encoder, value: NonNegativeInt) = encoder.encodeInt(value.toInt())
@@ -113,7 +131,8 @@ object SeleniumBrowserStereotypeSerializer : KSerializer<SeleniumBrowserStereoty
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("SeleniumBrowserStereotype", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: SeleniumBrowserStereotype) = encoder.encodeString(value.toString())
+    override fun serialize(encoder: Encoder, value: SeleniumBrowserStereotype) =
+        encoder.encodeString(value.toString())
     override fun deserialize(decoder: Decoder): SeleniumBrowserStereotype =
         SeleniumBrowserStereotype(decoder.decodeString())
 }
@@ -201,7 +220,11 @@ data class Configuration(
     val github: GitHub,
     val tests: Tests,
     val serving: Serving
-)
+) {
+    @Suppress("HttpUrlsUsage", "unused")
+    @Transient val httpUri: URI = URI.create("http://test.learnyouahaskell.github.io:${serving.port}")
+    @Transient val httpsUri: URI = URI.create("https://test.learnyouahaskell.github.io:${serving.tls.port}")
+}
 
 @Serializable
 data class GitHub(
@@ -241,11 +264,16 @@ data class Tests(
 
 @Serializable
 data class Serving(
-    @Contextual val scheme: HttpScheme,
-    @SerialName("bind-address") val bindAddress: String,
     @Contextual val port: NonNegativeInt,
     @SerialName("html-content-root") @Contextual val htmlContentRoot: ExtantDirectory,
-    @Transient val uri: URI = URI.create("$scheme://$bindAddress:$port")
+    @Contextual val tls: TLS
+)
+
+@Serializable
+data class TLS(
+    @Contextual @SerialName("certificate-alias") val certificateAlias: String = "test.lyah",
+    @Contextual @SerialName("keyStore-filename") val keyStoreFilename: File,
+    @Contextual val port: NonNegativeInt,
 )
 
 class FilenameTemplateProperties(val configuration: Configuration) {

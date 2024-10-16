@@ -5,9 +5,25 @@
 '
 
 # Constants
-DATE_FORMAT='%FT%H:%M:%S.%3NZ'
-TIME_ZONE="UTC0"
-readonly DATE_FORMAT TIME_ZONE
+# shellcheck disable=SC2034
+readonly HOST_DNS_NAME="test.learnyouahaskell.github.io"
+readonly DATE_FORMAT='%FT%H:%M:%S.%3NZ'
+readonly TIME_ZONE="UTC0"
+# shellcheck disable=SC2034
+readonly VM_PROPERTY_CONFIG_FILE_PATH="io.github.learnyouahaskell.test.config"
+# shellcheck disable=SC2034
+readonly VM_PROPERTY_KEYSTORE_FILE_PATH="io.github.learnyouahaskell.test.keyStore"
+# shellcheck disable=SC2034
+readonly VM_PROPERTY_KEYSTORE_PASSWORD="io.github.learnyouahaskell.test.keyStorePassword"
+# shellcheck disable=SC2034
+readonly VM_PROPERTY_PRIVATE_KEY_PASSWORD="io.github.learnyouahaskell.test.privateKeyPassword"
+# shellcheck disable=SC2034
+readonly KEYSTORE_PASSWORD="ksp"
+# shellcheck disable=SC2034
+readonly PRIVATE_KEY_PASSWORD="pkp"
+
+# shellcheck disable=SC2034
+readonly CONFIGURATION_CLASS_NAME='Configuration.kt'
 
 # Terminal Output
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
@@ -36,11 +52,22 @@ function waitForStatusCode {
   local statusCode
   # shellcheck disable=SC2034
   for attempt in $(seq 1 "${4}"); do
-    statusCode=$(curl --silent --head "${2}" | awk '/^HTTP/{print $2}')
+    statusCode=$(curl --insecure --silent --head "${2}" | awk '/^HTTP/{print $2}')
     [[ $statusCode == "$3" ]] && return 0
     sleep "${5}"
   done
   return 1
+}
+
+# Pushes a directory onto the stack and asserts it succeeds
+function pushDir {
+  pushd "${1}" &>/dev/null || \
+    { logError "Failed to push $(sQuote "$(red "${1}")") onto directory stack." && exit 1 ; }
+}
+
+# Pops a directory from the stack and asserts it succeeds
+function popDir {
+  popd &>/dev/null || { logError "Failed to pop from directory stack." && exit 1 ; }
 }
 
 #    Naively formats a URL given: scheme, host, port & path components

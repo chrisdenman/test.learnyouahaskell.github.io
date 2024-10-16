@@ -34,3 +34,5 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+!/ktor/src/main/kotlin/io/github/learnyouahaskell/test/configuration/Configuration.kt
