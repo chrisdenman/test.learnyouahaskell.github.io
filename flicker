@@ -16,29 +16,31 @@ fi
 
 ERRORS=0
 if [ ! -f "${1}" ]; then
-  ERRORS=1 && logError "First file not accessible at $(sQuote "$(red "${1}")")"
+  ERRORS=1 && logError "flicker: First file not accessible at $(sQuote "$(red "${1}")")"
 fi
 
 if [ ! -f "${2}" ]; then
-  ERRORS=1 && logError "Second file not accessible at $(sQuote "$(red "${2}")")"
+  ERRORS=1 && logError "flicker: Second file not accessible at $(sQuote "$(red "${2}")")"
 fi
 
 if [ "${1}" == "${2}" ]; then
-  ERRORS=1 && logError "Both input files are the same $(sQuote "$(red "${1}")")"
+  ERRORS=1 && logError "flicker: Both input files are the same $(sQuote "$(red "${1}")")"
 fi
 
 if [ -f "${3}" ]; then
-  ERRORS=1 && logError "Output file $(sQuote "$(red "${3}")") already exists."
+  ERRORS=1 && logError "flicker: Output file $(sQuote "$(red "${3}")") already exists."
 fi
 
 # Ensure that the ImageMagick 'animate' command is installed
-animate -version &>/dev/null || { ERRORS=1 && logError "ImageMagick $(sQuote "$(red "animate")") command not found." ; }
+animate -version &>/dev/null || \
+  { ERRORS=1 && logError "flicker: ImageMagick $(sQuote "$(red "animate")") command not found." ; }
 # Ensure that the ImageMagick 'convert' command is installed
-convert -version &>/dev/null || { ERRORS=1 && logError "ImageMagick $(sQuote "$(red "convert")") command not found." ; }
+convert -version &>/dev/null || \
+  { ERRORS=1 && logError "flicker: ImageMagick $(sQuote "$(red "convert")") command not found." ; }
 
 # If there's any error, exit
 if [ "$ERRORS" -ne "0" ]; then
-  logError "Exiting due to previous errors."; exit 1
+  logError "flicker: Exiting due to previous errors."; exit 1
 else
   convert -delay 25 -loop 0 "${1}" "${2}" "${3}"
 fi

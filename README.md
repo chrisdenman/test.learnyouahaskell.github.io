@@ -19,7 +19,8 @@ A typical configuration file for executing the tests is as follows:
     "owner": "learnyouahaskell",                      🔵 The owner of the repository to test. 
     "repository": "learnyouahaskell.github.io",       🔵 The repository to test. 
     "branch": "main",                                 🔵 The branch to test.
-    "html_content_root": "docs",                      🔵 The relative repository path from which to serve content 
+    "html_content_root": "docs",                      🔵 The relative repository path from which to serve content,
+    "working_directory": "/home/me/working"           🔵 Optional path in which to clone repositories.
   },
   "tests": {                                    
     "relative_page_urls": [                           🟣 A list of relative URL strings to screen-shot...
