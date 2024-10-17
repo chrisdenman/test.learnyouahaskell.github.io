@@ -16,7 +16,8 @@ CONFIG_FILE_PATH="${1}" && readonly CONFIG_FILE_PATH
 
 # Check that the specified configuration file exists
 if [[ ! -f $CONFIG_FILE_PATH ]]; then
-  logError "Configuration file $(sQuote "$(red "${CONFIG_FILE_PATH}")") inaccessible or nonexistent." && printUsageAndExit
+  logError "Configuration file $(sQuote "$(red "${CONFIG_FILE_PATH}")") inaccessible or nonexistent." \
+    && printUsageAndExit
 fi
 
 # Extract the location of our key store file
@@ -47,7 +48,7 @@ else
   java -version && logInfo "Press $(green "ctrl+d") to stop the server"
 
   # Executing Ktor with Gradle
-  ./gradlew run \
+  ./gradlew --quiet run \
     "-D${VM_PROPERTY_KEYSTORE_FILE_PATH}=${KEYSTORE_FILE_PATH}" \
     "-D${VM_PROPERTY_KEYSTORE_PASSWORD}=${KEYSTORE_PASSWORD}" \
     "-D${VM_PROPERTY_PRIVATE_KEY_PASSWORD}=${PRIVATE_KEY_PASSWORD}" \

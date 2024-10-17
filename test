@@ -46,15 +46,15 @@ ERRORS=0
 
 # Ensure that the gnome-terminal command is installed
 gnome-terminal --version &>/dev/null || \
-  { ERRORS=1 && logError "$(sQuote "$(red "gnome-terminal")") command not found." ; }
+  { ERRORS=1 && logError "test: $(sQuote "$(red "gnome-terminal")") command not found." ; }
 
 # Ensure that jq installed
-jq --version &>/dev/null || { ERRORS=1 && logError "$(sQuote "$(red "jq")") command not found." ; }
+jq --version &>/dev/null || { ERRORS=1 && logError "test: $(sQuote "$(red "jq")") command not found." ; }
 
 # Check that the provided configuration file argument value exists
 CONFIG_FILE_PATH="${1}" && readonly CONFIG_FILE_PATH
 if [[ ! -f $CONFIG_FILE_PATH ]]; then
-  ERRORS=1 && logError "Configuration file $(sQuote "$(red "${CONFIG_FILE_PATH}")") inaccessible or nonexistent."
+  ERRORS=1 && logError "test: Configuration file $(sQuote "$(red "${CONFIG_FILE_PATH}")") inaccessible or nonexistent."
 fi
 
 # If there's any error, print usage instructions and exit
@@ -64,45 +64,46 @@ if [ "$ERRORS" -ne "0" ]; then printUsageAndExit ; fi
 ID=$(jq -r '.id' "${CONFIG_FILE_PATH}") && readonly ID
 
 # Some initial user feedback
-logInfo "Executing test configuration $(sQuote "$(blue "${ID}")")."
+logInfo "test: Executing test configuration $(sQuote "$(blue "${ID}")")."
 
 # Clone the desired repository branch for testing
-"${SCRIPT_PATH}"/clone_repository "${CONFIG_FILE_PATH}" || { logError "Failed to clone repository." && exit 1 ; }
+"${SCRIPT_PATH}"/clone_repository "${CONFIG_FILE_PATH}" || { logError "test: Failed to clone repository." && exit 1 ; }
 
 # Read the desired JVM keystore file's path
 KEYSTORE_FILE_PATH=$(jq -r ".serving.tls.\"keyStore-filename\"" "${CONFIG_FILE_PATH}") && readonly KEYSTORE_FILE_PATH
 # Delete JVM keystore if extant
 if [[ -f "${KEYSTORE_FILE_PATH}" ]]; then
-  logInfo "Deleting JVM keystore $(sQuote "$(blue "${KEYSTORE_FILE_PATH}")")."
+  logInfo "test: Deleting JVM keystore $(sQuote "$(blue "${KEYSTORE_FILE_PATH}")")."
   rm -f "${KEYSTORE_FILE_PATH}"
 else
-  logInfo "No existing JVM keystore."
+  logInfo "test: No existing JVM keystore."
 fi
 
 # Generate the JVM keystore for HTTPS(TLS) test support
 KEYSTORE_DIRECTORY=$(dirname "${KEYSTORE_FILE_PATH}") && readonly KEYSTORE_DIRECTORY
-logInfo "Creating JVM keystore directory $(sQuote "$(green "${KEYSTORE_DIRECTORY}")")."
-mkdir -p "${KEYSTORE_DIRECTORY}" || { logError "Failed to generate JVM keystore directory $(sQuote "$(red "${KEYSTORE_DIRECTORY}")")." && exit 1 ; }
-./gradlew generateKeyStore \
+logInfo "test: Creating JVM keystore directory $(sQuote "$(green "${KEYSTORE_DIRECTORY}")")."
+mkdir -p "${KEYSTORE_DIRECTORY}" || \
+  { logError "test: Failed to generate JVM keystore directory $(sQuote "$(red "${KEYSTORE_DIRECTORY}")")." && exit 1 ; }
+./gradlew --quiet generateKeyStore \
     "-D${VM_PROPERTY_KEYSTORE_PASSWORD}=${KEYSTORE_PASSWORD}" \
     "-D${VM_PROPERTY_PRIVATE_KEY_PASSWORD}=${PRIVATE_KEY_PASSWORD}" \
-    "-D${VM_PROPERTY_CONFIG_FILE_PATH}=${CONFIG_FILE_PATH}" || { logError "Failed to generate JVM KeyStore file $(sQuote "$(red "${KEYSTORE_FILE_PATH}")")." && exit 1 ; }
-
-# List the newly created key store contents
-logInfo "JVM keystore contents:"
-keytool -v -list -storepass "${KEYSTORE_PASSWORD}" -keystore "${KEYSTORE_FILE_PATH}"
+    "-D${VM_PROPERTY_CONFIG_FILE_PATH}=${CONFIG_FILE_PATH}" || \
+      { logError "test: Failed to generate JVM KeyStore file $(sQuote "$(red "${KEYSTORE_FILE_PATH}")")." && exit 1 ; }
 
 # Copy the Kotlin "Configuration" parsing class file from the root project to the ktor project
-CONFIGURATION_CLASS_PATH=$(find "${SCRIPT_PATH}/src/test/kotlin" -name "${CONFIGURATION_CLASS_NAME}" || { logError "Failed to locate $(sQuote "$(red "${CONFIGURATION_CLASS_NAME}")")" && exit 1 ; }) && readonly CONFIGURATION_CLASS_PATH
-CONFIGURATION_CLASS_PATH_RELATIVE="${CONFIGURATION_CLASS_PATH#"$SCRIPT_PATH"/src/test/}" && readonly CONFIGURATION_CLASS_PATH_RELATIVE
-logInfo "Copying the Kotlin configuration file $(sQuote "$(blue "${CONFIGURATION_CLASS_PATH}")") to $(sQuote "$(green "${KTOR_DIRECTORY}/${CONFIGURATION_CLASS_PATH_RELATIVE}")")."
+CONFIGURATION_CLASS_PATH=$(find "${SCRIPT_PATH}/src/test/kotlin" -name "${CONFIGURATION_CLASS_NAME}" || \
+  { logError "test: Failed to locate $(sQuote "$(red "${CONFIGURATION_CLASS_NAME}")")" && exit 1 ; }) && \
+  readonly CONFIGURATION_CLASS_PATH
+CONFIGURATION_CLASS_PATH_RELATIVE="${CONFIGURATION_CLASS_PATH#"$SCRIPT_PATH"/src/test/}" && \
+  readonly CONFIGURATION_CLASS_PATH_RELATIVE
+logInfo "test: Copying the Kotlin configuration file $(sQuote "$(blue "${CONFIGURATION_CLASS_PATH}")") to $(sQuote "$(green "${KTOR_DIRECTORY}/${CONFIGURATION_CLASS_PATH_RELATIVE}")")."
 cp -f "${CONFIGURATION_CLASS_PATH}" "${KTOR_DIRECTORY}/src/main/${CONFIGURATION_CLASS_PATH_RELATIVE}" \
-  || {  logError "Failed to copy Configuration.kt file." && exit 1 ; }
+  || {  logError "test: Failed to copy Configuration.kt file." && exit 1 ; }
 
 # Add a hosts file entry if not present
-if ! grep "127.0.0.1        test.learnyouahaskell.github.io" /etc/hosts; then
-  logInfo "Adding hosts file entry for $(sQuote "$(green "test.learnyouahaskell.github.io > 127.0.0.1")")."
-  echo "127.0.0.1        test.learnyouahaskell.github.io" | sudo tee -a /etc/hosts ; \
+if ! grep "127.0.0.1        test.learnyouahaskell.github.io" /etc/hosts > /dev/null; then
+  logInfo "test: Adding hosts file entry for $(sQuote "$(green "test.learnyouahaskell.github.io > 127.0.0.1")")."
+  echo "127.0.0.1        test.learnyouahaskell.github.io" | sudo tee -a /etc/hosts > /dev/null
 fi
 
 # Start Selenium
@@ -112,7 +113,7 @@ SELENIUM_URL=$(makeUrl "${SELENIUM_SCHEME}" "${HOST_DNS_NAME}" "${SELENIUM_PORT}
 readonly SELENIUM_URL
 readonly SELENIUM_STATUS_CODE=200
 if ! waitForStatusCode "Selenium" "${SELENIUM_URL}" "${SELENIUM_STATUS_CODE}" 1 "${SERVICE_POLLING_WAIT}" &>/dev/null ; then
-  logInfo "Starting Selenium..."
+  logInfo "test: Starting Selenium..."
   pushDir "${SELENIUM_DIRECTORY}"
   gnome-terminal -- bash -i -c "${SELENIUM_DIRECTORY}/serve ${CONFIG_FILE_PATH}; read"
   popDir
@@ -126,7 +127,7 @@ KTOR_URL=$(makeUrl "${KTOR_SCHEME}" "${HOST_DNS_NAME}" "${KTOR_PORT}" "/0386fc26
 ABS_KS_PATH=$(realpath "${KEYSTORE_FILE_PATH}") && readonly ABS_KS_PATH
 readonly KTOR_STATUS_CODE=404
 if ! waitForStatusCode "Ktor" "${KTOR_URL}" "${KTOR_STATUS_CODE}" 1 "${SERVICE_POLLING_WAIT}" &>/dev/null; then
-  logInfo "Starting Ktor..."
+  logInfo "test: Starting Ktor..."
   pushDir "${KTOR_DIRECTORY}"
   gnome-terminal -- bash -i -c "${KTOR_DIRECTORY}/serve ${CONFIG_FILE_PATH} ${ABS_KS_PATH}; read"
   popDir
@@ -134,18 +135,18 @@ fi
 
 # Wait for expected status code from requesting a non existent page from Ktor
 waitForStatusCode "Ktor" "${KTOR_URL}" "${KTOR_STATUS_CODE}" ${KTOR_START_MAX_ATTEMPTS} "${SERVICE_POLLING_WAIT}" \
-  || { logError "Failure in bringing up Ktor server." && exit 1 ; }
-logInfo "Ktor is ready."
+  || { logError "test: Failure in bringing up Ktor server." && exit 1 ; }
+logInfo "test: Ktor is ready."
 
 # Wait for expected status code from Selenium
 waitForStatusCode "Selenium" "${SELENIUM_URL}" "${SELENIUM_STATUS_CODE}" ${SELENIUM_START_MAX_ATTEMPTS} \
-  "${SERVICE_POLLING_WAIT}" || { logError "Failure in bringing up Selenium standalone server." && exit 1 ; }
-logInfo "Selenium is ready."
+  "${SERVICE_POLLING_WAIT}" || { logError "test: Failure in bringing up Selenium standalone server." && exit 1 ; }
+logInfo "test: Selenium is ready."
 
 # Run the Selenium tests
 pushDir "${SCRIPT_PATH}"
-logInfo "Executing Selenium tests."
-./gradlew test "-D${VM_PROPERTY_CONFIG_FILE_PATH}=${CONFIG_FILE_PATH}"
+logInfo "test: Executing Selenium tests."
+./gradlew --quiet test "-D${VM_PROPERTY_CONFIG_FILE_PATH}=${CONFIG_FILE_PATH}"
 popDir
 
 ## Kill Selenium and Ktor

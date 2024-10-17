@@ -232,7 +232,8 @@ data class GitHub(
     val repository: String,
     val branch: String,
     val sha: String,
-    @SerialName("html_content_root") val htmlContentRoot: String
+    @SerialName("html_content_root") val htmlContentRoot: String,
+    @SerialName("working_directory") @Contextual val workingDirectory: ExtantDirectory? = null
 )
 
 @Serializable
