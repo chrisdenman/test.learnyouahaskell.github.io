@@ -10,8 +10,8 @@ import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.AbstractDriverOptions
 import org.openqa.selenium.remote.Browser
 import org.openqa.selenium.remote.RemoteWebDriver
-import java.net.URI.create as createUri
 import kotlin.reflect.KClass
+import java.net.URI.create as createUri
 
 class SeleniumSupport {
 
