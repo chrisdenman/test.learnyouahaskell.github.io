@@ -22,7 +22,7 @@ class HostedPages(configuration: Configuration) {
     val chapterInputAndOutput: Page = landing.resolve("input-and-output.html", "chapter-input-and-output")
     val chapterFunctionallySolvingProblems: Page =
         landing.resolve("functionally-solving-problems.html", "chapter-functionally-solving-problems")
-    val chapterFunctionsApplicativeFunctorsAndMonoids: Page = landing.resolve(
+    val chapterFunctorsApplicativeFunctorsAndMonoids: Page = landing.resolve(
         "functors-applicative-functors-and-monoids.html",
         "chapter-functors-applicative-functors-and-monoids"
     )
@@ -44,7 +44,7 @@ class HostedPages(configuration: Configuration) {
         chapterMakingOurOwnTypeclasses,
         chapterInputAndOutput,
         chapterFunctionallySolvingProblems,
-        chapterFunctionsApplicativeFunctorsAndMonoids,
+        chapterFunctorsApplicativeFunctorsAndMonoids,
         chapterAFistfulOfMonads,
         chapterForAFewMonadsMore,
         chapterZippers
