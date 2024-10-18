@@ -4,9 +4,10 @@
     Serves HTML content using Ktor.
 '
 
+ME=$(basename "$0") && readonly ME
 source ../common
 
-function printUsageAndExit { logError "Usage: 'serve $(blue "CONFIG_FILE") $(blue "KEYSTORE_FILE")'"; exit 1; }
+function printUsageAndExit { logError "${ME}" "Usage: 'serve $(blue "CONFIG_FILE") $(blue "KEYSTORE_FILE")'"; exit 1; }
 
 # Check that we have exactly two arguments
 if [[ $# -ne 2 ]]; then printUsageAndExit; fi
@@ -16,7 +17,7 @@ CONFIG_FILE_PATH="${1}" && readonly CONFIG_FILE_PATH
 
 # Check that the specified configuration file exists
 if [[ ! -f $CONFIG_FILE_PATH ]]; then
-  logError "Configuration file $(sQuote "$(red "${CONFIG_FILE_PATH}")") inaccessible or nonexistent." \
+  logError "${ME}" "Configuration file $(sQuote "$(red "${CONFIG_FILE_PATH}")") inaccessible or nonexistent." \
     && printUsageAndExit
 fi
 
@@ -24,28 +25,28 @@ fi
 KEYSTORE_FILE_PATH="${2}" && readonly KEYSTORE_FILE_PATH
 # Check that the specified key store file exists
 if [[ ! -f $KEYSTORE_FILE_PATH ]]; then
-  logError "Key Store file $(sQuote "$(red "${KEYSTORE_FILE_PATH}")") inaccessible or nonexistent." && printUsageAndExit
+  logError "${ME}" "Key Store file $(sQuote "$(red "${KEYSTORE_FILE_PATH}")") inaccessible or nonexistent." && printUsageAndExit
 fi
 
 ERRORS=0
 # Ensure that Java is installed
-java -version &>/dev/null || { ERRORS=1 && logError "Java not found on the system." ; }
+java -version &>/dev/null || { ERRORS=1 && logError "${ME}" "Java not found on the system." ; }
 # Ensure that jq installed
-jq --version &>/dev/null || { ERRORS=1 && logError "$(sQuote "$(red "jq")") command not found." ; }
+jq --version &>/dev/null || { ERRORS=1 && logError "${ME}" "$(sQuote "$(red "jq")") command not found." ; }
 # If there's any error, exit
 if [ "$ERRORS" -ne "0" ]; then
-  logError "Exiting due to previous errors."; exit 1
+  logError "${ME}" "Exiting due to previous errors."; exit 1
 else
   # Read the configuration file's identity
   ID=$(jq -r '.id' "${CONFIG_FILE_PATH}") && readonly ID
   # Some initial user feedback
-  logInfo "Using the $(sQuote "$(blue "${ID}")") configuration."
+  logInfo "${ME}" "Using the $(sQuote "$(blue "${ID}")") configuration."
 
   # Read the JVM KeyStore path
-  logInfo "Using the JVM KeyStore at $(sQuote "$(blue "${KEYSTORE_FILE_PATH}")")."
+  logInfo "${ME}" "Using the JVM KeyStore at $(sQuote "$(blue "${KEYSTORE_FILE_PATH}")")."
 
   # Output the current Java version we will be using
-  java -version && logInfo "Press $(green "ctrl+d") to stop the server"
+  java -version && logInfo "${ME}" "Press $(green "ctrl+d") to stop the server"
 
   # Executing Ktor with Gradle
   ./gradlew --quiet run \
