@@ -11,6 +11,7 @@
     highlighting the differences.
 '
 
+ME=$(basename "$0") && readonly ME
 # shellcheck disable=SC2164
 SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 readonly SCRIPT_PATH
@@ -18,46 +19,46 @@ readonly SCRIPT_PATH
 source "${SCRIPT_PATH}"/common
 
 if [[ $# -ne 4 ]]; then
-  logError "comp: Usage DIR1 DIR2 FORMAT OUT_DIR."; exit 1
+  logError "${ME}" "Usage DIR1 DIR2 FORMAT OUT_DIR."; exit 1
 fi
 
 ERRORS=0
 DIR1="${1}" && readonly DIR1
 # Ensure that the input directories exit
 if [ ! -d "${DIR1}" ]; then
-  ERRORS=1 && logError "comp: First image directory not accessible at $(sQuote "$(red "${DIR1}")")"
+  ERRORS=1 && logError "First image directory not accessible at $(sQuote "$(red "${DIR1}")")"
 fi
 
 DIR2="${2}" && readonly DIR2
 if [ ! -d "${DIR2}" ]; then
-  ERRORS=1 && logError "comp: Second image directory not accessible at $(sQuote "$(red "${DIR2}")")"
+  ERRORS=1 && logError "${ME}" "Second image directory not accessible at $(sQuote "$(red "${DIR2}")")"
 fi
 
 FORMAT="${3}" && readonly FORMAT
 
 if [ "${DIR1}" == "${DIR2}" ]; then
-  ERRORS=1 && logError "comp: Both arguments point to the same directory $(sQuote "$(red "${DIR1}")")"
+  ERRORS=1 && logError "${ME}" "Both arguments point to the same directory $(sQuote "$(red "${DIR1}")")"
 fi
 
 # Ensure that Image Magick is installed
 identify -version &>/dev/null \
-  || { ERRORS=1 && logError "comp: ImageMagick $(sQuote "$(blue "identify")") not found on the system."; }
+  || { ERRORS=1 && logError "${ME}" "ImageMagick $(sQuote "$(blue "identify")") not found on the system."; }
 
 # Create the output directory if there's no errors up to this point
 OUT_DIR="${4}"
 readonly OUT_DIR
 if [ "$ERRORS" -eq "0" ]; then
   if [ ! -d "${OUT_DIR}" ]; then
-    logInfo "comp: Creating output directory $(sQuote "$(green "${OUT_DIR}")")"
+    logInfo "${ME}" "Creating output directory $(sQuote "$(green "${OUT_DIR}")")"
     if ! mkdir -p  "${OUT_DIR}"; then
-      ERRORS=1 && logError "comp: Could not create output directory."
+      ERRORS=1 && logError "${ME}" "Could not create output directory."
     fi
   fi
 fi
 
 # If there's any error, exit
 if [ "$ERRORS" -ne "0" ]; then
-  logError "comp: Exiting due to previous errors."; exit 1
+  logError "${ME}" "Exiting due to previous errors."; exit 1
 fi
 
 FILESET_1=$(find "${DIR1}" -iname "*.${FORMAT}" -exec basename {} \; | sort);
@@ -66,14 +67,14 @@ readonly FILESET_1
 FILESET_2=$(find "${DIR2}" -iname "*.${FORMAT}" -exec basename {} \; | sort);
 readonly FILESET_2
 
-logInfo "comp: Comparing filesets by name only."
+logInfo "${ME}" "Comparing filesets by name only."
 if ! comm -3 <(echo "${FILESET_1[@]}") <(echo "${FILESET_2[@]}"); then
-  logError "comp: Directories contain differently named files, exiting." && exit 1
+  logError "${ME}" "Directories contain differently named files, exiting." && exit 1
 else
-  logInfo "comp: Both filesets contain identically named files."
+  logInfo "${ME}" "Both filesets contain identically named files."
 fi
 
-logInfo "comp: Comparing images by ImageMagick signature."
+logInfo "${ME}" "Comparing images by ImageMagick signature."
 for BASENAME in ${FILESET_1}; do
   FIRST_FILE="${DIR1}/${BASENAME}"
   SECOND_FILE="${DIR2}/${BASENAME}"
@@ -81,7 +82,7 @@ for BASENAME in ${FILESET_1}; do
   SECOND_SIGNATURE=$(identify -quiet -format "%#" "${SECOND_FILE}")
   if [ "${FIRST_SIGNATURE}" != "${SECOND_SIGNATURE}" ]; then
     FLICKER_FILE="${OUT_DIR}/flicker_${BASENAME%.*}.gif"
-    logInfo "comp: Differences in $(sQuote "$(blue "${BASENAME}")"), generating flicker animation as $(sQuote "$(blue "${FLICKER_FILE}")")"
+    logInfo "${ME}" "Differences in $(sQuote "$(blue "${BASENAME}")"), generating flicker animation as $(sQuote "$(blue "${FLICKER_FILE}")")"
     "${SCRIPT_PATH}"/flicker "${FIRST_FILE}" "${SECOND_FILE}" "${FLICKER_FILE}"
   fi
 done
