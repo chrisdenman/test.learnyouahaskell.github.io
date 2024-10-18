@@ -113,20 +113,20 @@ class ChaptersPageTests {
         ),
         "Heathrow to London" to pageSection(cs.hostedPages.chapterFunctionallySolvingProblems, "heathrow-to-london"),
 
-        "Functors, Applicative Functors and Monoids" to cs.hostedPages.chapterFunctionsApplicativeFunctorsAndMonoids,
+        "Functors, Applicative Functors and Monoids" to cs.hostedPages.chapterFunctorsApplicativeFunctorsAndMonoids,
         "Functors redux" to pageSection(
-            cs.hostedPages.chapterFunctionsApplicativeFunctorsAndMonoids,
+            cs.hostedPages.chapterFunctorsApplicativeFunctorsAndMonoids,
             "functors-redux"
         ),
         "Applicative functors" to pageSection(
-            cs.hostedPages.chapterFunctionsApplicativeFunctorsAndMonoids,
+            cs.hostedPages.chapterFunctorsApplicativeFunctorsAndMonoids,
             "applicative-functors"
         ),
         "The newtype keyword" to pageSection(
-            cs.hostedPages.chapterFunctionsApplicativeFunctorsAndMonoids,
+            cs.hostedPages.chapterFunctorsApplicativeFunctorsAndMonoids,
             "the-newtype-keyword"
         ),
-        "Monoids" to pageSection(cs.hostedPages.chapterFunctionsApplicativeFunctorsAndMonoids, "monoids"),
+        "Monoids" to pageSection(cs.hostedPages.chapterFunctorsApplicativeFunctorsAndMonoids, "monoids"),
 
         "A Fistful of Monads" to cs.hostedPages.chapterAFistfulOfMonads,
         "Getting our feet wet with Maybe" to pageSection(
