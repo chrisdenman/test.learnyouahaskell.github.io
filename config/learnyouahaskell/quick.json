@@ -11,24 +11,6 @@
     "screenshots": {
       "relative_page_urls": [
         ""
-      ],
-      "output_file_template": "{{user.dir}}/screenshots/{{github.owner}}-{{github.repository}}-{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}-{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
-      "dateTime_formatter_pattern": "uuuu-MM-dd'T'HH-mm-ss.SSSX",
-      "maximum_height_pixels": 2048,
-      "scroll_timeout_milliseconds": 100,
-      "image_format": "png"
-    },
-    "browsers": {
-      "targets": [
-        {
-          "name": "chrome"
-        }
-      ],
-      "dimensions": [
-        {
-          "width": 1024,
-          "height": 800
-        }
       ]
     },
     "remote_web_driver": {
