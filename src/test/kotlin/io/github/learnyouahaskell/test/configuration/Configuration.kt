@@ -1,5 +1,6 @@
 package io.github.learnyouahaskell.test.configuration
 
+import io.github.learnyouahaskell.test.configuration.ImageFormat.Companion.PNG
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -190,11 +191,16 @@ data class ExtantDirectory(private val value: String, val file: File = File(valu
 data class ImageFormat(val value: String) {
     init {
         require(value in listOf<String>("png")) {
-            "Only: \"png\" is supported."
+            "Only: \"${FORMAT_PNG}\" is supported."
         }
     }
 
     override fun toString(): String = value.toString()
+
+    companion object {
+        const val FORMAT_PNG = "png"
+        val PNG = ImageFormat(FORMAT_PNG)
+    }
 }
 
 @Serializable
@@ -249,17 +255,22 @@ data class RemoteWebDriver(
 @Serializable
 data class ScreenShots(
     @SerialName("relative_page_urls") val relativePageUrls: List<String>,
-    @SerialName("output_file_template") val outputFileTemplate: String,
-    @Contextual @SerialName("dateTime_formatter_pattern") val dateTimeFormatter: DateTimeFormatter,
-    @Contextual @SerialName("maximum_height_pixels") val maximumHeightPixels: PositiveInt,
-    @Contextual @SerialName("scroll_timeout_milliseconds") val scrollTimeoutMilliseconds: PositiveInt,
-    @Contextual @SerialName("image_format") val imageFormat: ImageFormat
+    @SerialName("output_file_template") val outputFileTemplate: String =
+        "{{user.dir}}/screenshots/{{github.owner}}-{{github.repository}}-{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}-{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
+    @Contextual @SerialName("dateTime_formatter_pattern") val dateTimeFormatter: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH-mm-ss.SSSX"),
+    @Contextual @SerialName("maximum_height_pixels") val maximumHeightPixels: PositiveInt = PositiveInt(2048),
+    @Contextual @SerialName("scroll_timeout_milliseconds") val scrollTimeoutMilliseconds: PositiveInt = PositiveInt(100),
+    @Contextual @SerialName("image_format") val imageFormat: ImageFormat = PNG
 )
 
 @Serializable
 data class Tests(
     val screenshots: ScreenShots,
-    val browsers: Browsers,
+    val browsers: Browsers = Browsers(
+        setOf(BrowserTarget(SeleniumBrowserStereotype("chrome"))),
+        setOf(Dimension(PositiveInt(1024), PositiveInt(800)))
+    ),
     @SerialName("remote_web_driver") val remoteWebDriver: RemoteWebDriver
 )
 
