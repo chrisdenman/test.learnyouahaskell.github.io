@@ -26,6 +26,7 @@ run {
 }
 
 dependencies {
+    implementation "ch.qos.logback:logback-classic:${logback_version}"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${version_kotlinx_serialization_json}"
     implementation "io.ktor:ktor-server-core-jvm:"
