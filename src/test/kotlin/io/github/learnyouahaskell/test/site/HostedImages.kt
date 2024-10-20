@@ -6,7 +6,7 @@ class HostedImages {
 
     companion object {
         private fun createImage(relativeResourceUrl: String, alt: String) =
-            Image.Companion.create("assets/images/${relativeResourceUrl}", alt)
+            Image.create("assets/images/${relativeResourceUrl}", alt)
     }
 
     val turtle = createImage("faq/turtle.png", "turtle???")
