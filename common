@@ -38,7 +38,7 @@ function green { echo "${COLOR_GREEN}${1}${COLOR_RESET}" ; }
 function yellow { echo "${COLOR_YELLOW}${1}${COLOR_RESET}" ; }
 function blue { echo "${COLOR_BLUE}${1}${COLOR_RESET}" ; }
 function logInfo  { echo -e "$(blue "$(TZ=${TIME_ZONE} date +${DATE_FORMAT})")" "$(yellow "$1")" "$(green "INFO")" "${2}" ; }
-function logError  { echo -e "$(blue "$(TZ=${TIME_ZONE} date +${DATE_FORMAT})")" "$(red "$1")" "$(green "INFO")" "${2}" ; }
+function logError  { echo -e "$(blue "$(TZ=${TIME_ZONE} date +${DATE_FORMAT})")" "$(yellow "$1")" "$(red "ERROR")" "${2}" ; }
 
 
 #    Fetches a URL until a given status code is returned. Up to a specified number attempts and with a configurable

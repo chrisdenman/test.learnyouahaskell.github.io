@@ -71,13 +71,9 @@ logInfo "${ME}" "Executing test configuration $(sQuote "$(blue "${ID}")")."
 "${SCRIPT_PATH}"/clone_repository "${CONFIG_FILE_PATH}" || { logError "${ME}" "Failed to clone repository." && exit 1 ; }
 
 # Read the desired JVM keystore file's path
-KEYSTORE_FILE_PATH=$(jq -r ".serving.tls.\"keyStore-filename\"" "${CONFIG_FILE_PATH}") && readonly KEYSTORE_FILE_PATH
-# Delete JVM keystore if extant
-if [[ -f "${KEYSTORE_FILE_PATH}" ]]; then
-  logInfo "${ME}" "Deleting JVM keystore $(sQuote "$(blue "${KEYSTORE_FILE_PATH}")")."
-  rm -f "${KEYSTORE_FILE_PATH}"
-else
-  logInfo "${ME}" "No existing JVM keystore."
+KEYSTORE_FILE_PATH=$(jq -r ".serving.tls.keyStore_filename" "${CONFIG_FILE_PATH}") && readonly KEYSTORE_FILE_PATH
+if [[ ! -f "${KEYSTORE_FILE_PATH}" ]]; then
+  logError "${ME}" "JVM keystore $(sQuote "$(red "${KEYSTORE_FILE_PATH}")") inaccessible or nonexistent." && exit 1
 fi
 
 # Copy the Kotlin "Configuration" parsing class file from the root project to the ktor project
@@ -98,8 +94,8 @@ if ! grep "127.0.0.1        test.learnyouahaskell.github.io" /etc/hosts > /dev/n
 fi
 
 # Start Selenium
-SELENIUM_SCHEME=$(jq -r ".tests.\"remote-web-driver\".\"scheme\"" "${CONFIG_FILE_PATH}") && readonly SELENIUM_SCHEME
-SELENIUM_PORT=$(jq -r ".tests.\"remote-web-driver\".port" "${CONFIG_FILE_PATH}") && readonly SELENIUM_PORT
+SELENIUM_SCHEME=$(jq -r ".tests.remote_web_driver.scheme" "${CONFIG_FILE_PATH}") && readonly SELENIUM_SCHEME
+SELENIUM_PORT=$(jq -r ".tests.remote_web_driver.port" "${CONFIG_FILE_PATH}") && readonly SELENIUM_PORT
 SELENIUM_URL=$(makeUrl "${SELENIUM_SCHEME}" "${HOST_DNS_NAME}" "${SELENIUM_PORT}" "/ui") && \
 readonly SELENIUM_URL
 readonly SELENIUM_STATUS_CODE=200
@@ -137,7 +133,7 @@ logInfo "${ME}" "Selenium is ready."
 # Run the Selenium tests
 pushDir "${ME}" "${SCRIPT_PATH}"
 logInfo "${ME}" "Executing Selenium tests."
-#./gradlew --quiet test "-D${VM_PROPERTY_CONFIG_FILE_PATH}=${CONFIG_FILE_PATH}"
+./gradlew --quiet test "-D${VM_PROPERTY_CONFIG_FILE_PATH}=${CONFIG_FILE_PATH}"
 popDir "${ME}"
 
 # Kill Selenium and Ktor

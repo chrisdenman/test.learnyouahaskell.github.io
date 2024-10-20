@@ -57,16 +57,17 @@
         }
       ]
     },
-    "remote-web-driver": {
+    "remote_web_driver": {
       "scheme": "http",
-      "bind-address": "0.0.0.0",
+      "bind_address": "0.0.0.0",
       "port": 4444
     }
   },
   "serving": {
     "port": 8080,
     "tls": {
-      "port": 8443
+      "port": 8443,
+      "keyStore_filename": "lyah.jks"
     }
   }
 }

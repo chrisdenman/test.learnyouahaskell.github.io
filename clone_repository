@@ -94,12 +94,10 @@ else
   popDir "${ME}"
 
   # Update the github.sha property
-  cat <<< "$(jq ".github.\"sha\" |= \"${SHA}\"" "${CONFIG_FILE_PATH}")" > "${CONFIG_FILE_PATH}"
+  cat <<< "$(jq ".github.sha |= \"${SHA}\"" "${CONFIG_FILE_PATH}")" > "${CONFIG_FILE_PATH}"
   
-  # Update the serving.html-content_root property
+  # Update the serving.html_content_root property
   REPO_HTML_CONTENT_ROOT="${REPO_DIR}/${HTML_CONTENT_ROOT}" && readonly REPO_HTML_CONTENT_ROOT
-  logInfo "${ME}" "Setting configuration property $(sQuote "$(blue ".serving.html-content-root")") to $(sQuote "$(green "${REPO_HTML_CONTENT_ROOT}")")."
-  cat <<< "$(jq ".serving.\"html-content-root\" |= \"${REPO_HTML_CONTENT_ROOT}\"" "${CONFIG_FILE_PATH}")" > "${CONFIG_FILE_PATH}"
-
-
+  logInfo "${ME}" "Setting configuration property $(sQuote "$(blue ".serving.html_content_root")") to $(sQuote "$(green "${REPO_HTML_CONTENT_ROOT}")")."
+  cat <<< "$(jq ".serving.html_content_root |= \"${REPO_HTML_CONTENT_ROOT}\"" "${CONFIG_FILE_PATH}")" > "${CONFIG_FILE_PATH}"
 fi
