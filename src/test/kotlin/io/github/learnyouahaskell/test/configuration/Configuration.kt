@@ -248,6 +248,7 @@ data class RemoteWebDriver(
 
 @Serializable
 data class ScreenShots(
+    @SerialName("relative_page_urls") val relativePageUrls: List<String>,
     @SerialName("output_file_template") val outputFileTemplate: String,
     @Contextual @SerialName("dateTime_formatter_pattern") val dateTimeFormatter: DateTimeFormatter,
     @Contextual @SerialName("maximum_height_pixels") val maximumHeightPixels: PositiveInt,
@@ -257,7 +258,6 @@ data class ScreenShots(
 
 @Serializable
 data class Tests(
-    @SerialName("relative_page_urls") val relativePageUrls: List<String>,
     val screenshots: ScreenShots,
     val browsers: Browsers,
     @SerialName("remote_web_driver") val remoteWebDriver: RemoteWebDriver

@@ -1,32 +1,16 @@
 {
-  "id": "image_alt_text_fixes",
+  "id": "quick",
   "github": {
-    "owner": "chrisdenman",
+    "owner": "learnyouahaskell",
     "repository": "learnyouahaskell.github.io",
-    "branch": "image_alt_text_fixes",
+    "branch": "main",
     "html_content_root": "docs",
-    "sha": "8c17d91b6f92438c2d49debc017f239a87a49898"
+    "sha": "646c3d171d24c71c48581fe1923f6d17cec7a10a"
   },
   "tests": {
     "screenshots": {
       "relative_page_urls": [
-        "",
-        "faq.html",
-        "chapters.html",
-        "introduction.html",
-        "starting-out.html",
-        "types-and-typeclasses.html",
-        "syntax-in-functions.html",
-        "recursion.html",
-        "higher-order-functions.html",
-        "modules.html",
-        "making-our-own-types-and-typeclasses.html",
-        "input-and-output.html",
-        "functionally-solving-problems.html",
-        "functors-applicative-functors-and-monoids.html",
-        "a-fistful-of-monads.html",
-        "for-a-few-monads-more.html",
-        "zippers.html"
+        ""
       ],
       "output_file_template": "{{user.dir}}/screenshots/{{github.owner}}-{{github.repository}}-{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}-{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
       "dateTime_formatter_pattern": "uuuu-MM-dd'T'HH-mm-ss.SSSX",
@@ -38,19 +22,9 @@
       "targets": [
         {
           "name": "chrome"
-        },
-        {
-          "name": "edge"
-        },
-        {
-          "name": "firefox"
         }
       ],
       "dimensions": [
-        {
-          "width": 860,
-          "height": 800
-        },
         {
           "width": 1024,
           "height": 800

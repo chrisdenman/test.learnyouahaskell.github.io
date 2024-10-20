@@ -14,63 +14,102 @@ A typical configuration file for executing the tests is as follows:
 
 <pre>
 {
-  "id": "production",                                 🔵 An identifier for this configuration. 
-  "github": {                                         🟣 Git Hub configuration... 
-    "owner": "learnyouahaskell",                      🔵 The owner of the repository to test. 
-    "repository": "learnyouahaskell.github.io",       🔵 The repository to test. 
-    "branch": "main",                                 🔵 The branch to test.
-    "html_content_root": "docs",                      🔵 The relative repository path from which to serve content,
-    "working_directory": "/home/me/working"           🔵 Optional path in which to clone owner/repository directories 
-                                                      🔵   into. If supplied, this directory must not be located in any
-                                                      🔵   git repositories. If not supplied, a temporary folder will be  
-                                                      🔵   created and used.  
+    🔵 An identifier for this configuration.
+  "id": "production",
+  
+  🟣 Git Hub configuration...
+  "github": {                                         
+    🔵 The owner of the repository to test.
+    "owner": "learnyouahaskell",           
+
+    🔵 The repository to test.
+    "repository": "learnyouahaskell.github.io",
+
+    🔵 The branch to test.
+    "branch": "main",
+
+    🔵 The relative repository path from which to serve content    
+    "html_content_root": "docs",                      
+
+    🔵 Optional path in which to clone owner/repository directories    
+    🔵 into. If supplied, this directory must not be located in any                                                      
+    🔵 git repositories. If not supplied, a temporary folder will be                                                        
+    🔵 created and used.                                                        
+    "working_directory": "/home/me/working"            
   },
   "tests": {                                    
-    "relative_page_urls": [                           🟣 A list of relative URL strings to screen-shot...
-      "",
-      "faq.html",
-      "chapters.html"
-    ],
-    "screenshots": {                                  🟣 Screenshot configuration... 
-                                                      🔵 A string interpolation template screenshot filenames.
-                                                      🔵   Path segments are separated with '/' which are replaced with  
-                                                      🔵   their platform dependent equivalents at run-time.
-                                                      🔵 See later on for a full list of permitted tokens.
+    
+    🟣 Screenshot configuration...
+    "screenshots": {
+      🟣 A list of relative URL strings to screen-shot...
+      "relative_page_urls": [                         
+        "",
+        "faq.html",
+        "chapters.html"
+      ],
+
+      🔵 A string interpolation template screenshot filenames.
+      🔵 Path segments are separated with '/' which are replaced with  
+      🔵 their platform dependent equivalents at run-time.
+      🔵 See later on for a full list of permitted tokens.
       "output_file_template": "{{user.dir}}/screenshots/{{github.owner}}-{{github.repository}}-{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}-{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
-                                                      🔵 A Java DateTimeFormatter pattern for formatting the   
-                                                      🔵   'start_time_utc' property value.  
-      "dateTime_formatter_pattern": 
-         "uuuu-MM-dd'T'HH:mm:ss.SSSX", 
-      "maximum_height_pixels": 2048,                  🔵 The maximum height of a screenshot in pixels. 
-                                                      🔵   Taller images are split into numbered tiles.
-      "scroll_timeout_milliseconds": 100,             🔵 The maximum time to wait for Selenium to scroll the page under 
-                                                      🔵   test.
-      "image_format": "png"                           🔵 The screenshot output image format.
+
+      🔵 A Java `DateTimeFormatter` pattern for formatting the 
+      🔵 'start_time_utc' property value.   
+      "dateTime_formatter_pattern": "uuuu-MM-dd'T'HH:mm:ss.SSSX",
+
+      🔵 The maximum height of a screenshot in pixels. Taller images are split 
+      🔵 into numbered tiles.
+      "maximum_height_pixels": 2048,
+
+      🔵 The maximum time to wait for Selenium to scroll the page under test.
+      "scroll_timeout_milliseconds": 100,
+
+      🔵 The screenshot output image format.
+      "image_format": "png"                           
     },                                                
     "browsers": {                                     
-      "targets": [                                    🔵 An array of browser name specifications. 
-                                                      🔵   Only: 'chrome', 'edge' & 'firefox' are permitted.
+      🟣 An array of browser target specifications objects...
+      "targets": [                                     
         {"name": "chrome"},                           
         {"name": "firefox"}                           
-      ],                                              
-      "dimensions": [                                 🟣 A JSON array of browser window dimensions...
+      ],                                       
+
+      🟣 An array of browser window dimensions...
+      "dimensions": [                                 
         {                                             
-          "width": 860,                               🔵 Desired browser width in pixels.
-          "height": 800                               🔵 Desired browser height in pixels.
+          🔵 Desired browser width in pixels.
+          "width": 860,
+
+          🔵 Desired browser height in pixels.
+          "height": 800                               
         }                                          
       ]                                            
     },                                             
-    "remote_web_driver": {                            🟣 Selenium configuration...
-      "scheme": "http",                               🔵 The URL scheme. Only 'http' currently permitted.
-      "bind_address": "0.0.0.0",                      🔵 The IP address or host to bind to.
-      "port": 4444                                    🔵 The port number on which to expose Selenium.
+    🟣 Selenium configuration...
+    "remote_web_driver": {                            
+      🔵 The URL scheme. Only 'http' currently permitted.
+      "scheme": "http",          
+
+      🔵 The IP address or host to bind to.
+      "bind_address": "0.0.0.0",
+
+      🔵 The port number on which to expose Selenium.
+      "port": 4444                                    
     }                                              
   },                                               
-  "serving": {                                        🟣 HTTP server configuration... 
-    "port": 8888,                                     🔵 HTTP port number. 
-    "tls": {                                          🟣 TLS configuration for HTTPS.
-      "keystore_filename": "lyah.jks",                🔵 Location of the JVM keystore.
-      "port": 8443                                    🔵 HTTPs port number.
+  🟣 Cloned site's server configuration.
+  "serving": {                                        
+    🔵 HTTP port number.
+    "port": 8888,
+
+    🟣 TLS configuration for HTTPS.
+    "tls": {                                          
+      🔵 Location of the JVM keystore.
+      "keystore_filename": "lyah.jks",
+
+      🔵 HTTPs port number.
+      "port": 8443                                    
     }
   }
 }

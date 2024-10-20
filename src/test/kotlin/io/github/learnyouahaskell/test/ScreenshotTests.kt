@@ -42,7 +42,7 @@ class ScreenshotTests {
         ss.drive(cs.browserNames.map { ss.browserNameToBrowser[it]!! },
             cs.browserDimensions.map { ss.browserDimensionsToDimension(it) }
         ) { capabilities, browser, dimensions ->
-            testsConfig.relativePageUrls.forEach { relativePageUrl ->
+            testsConfig.screenshots.relativePageUrls.forEach { relativePageUrl ->
                 get(cs.configuration.httpsUri.resolve(relativePageUrl).toString())
                     val snapshot = takeSnapshot(this)
                     val browserWindow = manage().window()
