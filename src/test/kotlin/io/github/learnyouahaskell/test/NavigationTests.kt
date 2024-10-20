@@ -2,8 +2,11 @@ package io.github.learnyouahaskell.test
 
 import io.github.learnyouahaskell.test.app.ConfigurationSupport
 import io.github.learnyouahaskell.test.app.SeleniumSupport
+import io.github.learnyouahaskell.test.app.SeleniumSupport.Companion.assertLink
+import io.github.learnyouahaskell.test.app.SeleniumSupport.Companion.assertSize
 import io.github.learnyouahaskell.test.app.SeleniumSupport.Companion.hrefToUri
 import io.github.learnyouahaskell.test.site.Chapters
+import io.github.learnyouahaskell.test.site.Chapters.Companion.NAVIGATION__UP__TEXT
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import org.openqa.selenium.By.className as byClassName
@@ -21,37 +24,29 @@ class NavigationTests {
             cs.browserNames.map { ss.browserNameToBrowser[it]!! },
             cs.browserDimensions.map { ss.browserDimensionsToDimension(it) }
         ) { capabilities, browser, dimensions ->
-            val nav = chapters.navigation
-            nav.forEachIndexed { index, capabilities ->
+            val navChapters = chapters.navigation
+            navChapters.forEachIndexed { index, capabilities ->
 
-                get(nav[index].page.uri.toURL().toString())
+                get(navChapters[index].page.uri.toURL().toString())
 
                 val isFirstChapter = index == 0
-                val isLastChapter = index == nav.size - 1
+                val isLastChapter = index == navChapters.size - 1
 
-                if (!isFirstChapter) {
-                    findElements(byClassName(Chapters.PREVIOUS_LINK_CLASS)).also {
-                        assertEquals(2, it.size)
-                    }.forEach {
-                        assertEquals(nav[index - 1].page.uri, hrefToUri(it))
-                        assertEquals(nav[index - 1].navigationLinkToText, it.text)
-                    }
-
-                }
-
-                if (!isLastChapter) {
-                    findElements(byClassName(Chapters.NEXT_LINK_CLASS)).also {
-                        assertEquals(2, it.size)
-                    }.forEach { it ->
-                        assertEquals(nav[index + 1].page.uri, hrefToUri(it))
-                        assertEquals(nav[index + 1].navigationLinkToText, it.text)
+                findElements(byClassName(Chapters.PREVIOUS_LINK_CLASS)).run {
+                    assertSize(if (isFirstChapter) 0 else 2, this)
+                    forEach { previousLink ->
+                        navChapters[index - 1].run { assertLink(previousLink, page.uri, navigationLinkToText!!) }
                     }
                 }
 
-                findElements(byLinkText("Table of contents")).also {
-                    assertEquals(2, it.size)
-                }.forEach { it->
-                    assertEquals(cs.hostedPages.chapters.uri, hrefToUri(it))
+                findElements(byLinkText(NAVIGATION__UP__TEXT)).run {
+                    assertSize(2, this)
+                    forEach { it -> assertEquals(cs.hostedPages.chapters.uri, hrefToUri(it)) }
+                }
+
+                findElements(byClassName(Chapters.NEXT_LINK_CLASS)).run {
+                    assertSize(if (isLastChapter) 0 else 2, this)
+                    forEach { navChapters[index + 1].run { assertLink(it, page.uri, navigationLinkToText!!) } }
                 }
             }
         }
