@@ -20,7 +20,10 @@ A typical configuration file for executing the tests is as follows:
     "repository": "learnyouahaskell.github.io",       🔵 The repository to test. 
     "branch": "main",                                 🔵 The branch to test.
     "html_content_root": "docs",                      🔵 The relative repository path from which to serve content,
-    "working_directory": "/home/me/working"           🔵 Optional path in which to clone repositories.
+    "working_directory": "/home/me/working"           🔵 Optional path in which to clone owner/repository directories 
+                                                      🔵   into. If supplied, this directory must not be located in any
+                                                      🔵   git repositories. If not supplied, a temporary folder will be  
+                                                      🔵   created and used.  
   },
   "tests": {                                    
     "relative_page_urls": [                           🟣 A list of relative URL strings to screen-shot...
@@ -30,20 +33,23 @@ A typical configuration file for executing the tests is as follows:
     ],
     "screenshots": {                                  🟣 Screenshot configuration... 
                                                       🔵 A string interpolation template screenshot filenames.
-                                                      🔵   Path segments are separated with '/' which are replaced with their 
-                                                      🔵   platform dependent equivalents at run-time.
+                                                      🔵   Path segments are separated with '/' which are replaced with  
+                                                      🔵   their platform dependent equivalents at run-time.
                                                       🔵 See later on for a full list of permitted tokens.
       "output_file_template": "{{user.dir}}/screenshots/{{github.owner}}-{{github.repository}}-{{github.branch}}/{{github.sha}}/{{platform.name}}/{{browser.name}}-{{browser.version}}/{{browser.width}}x{{browser.height}}/{{relative_page_url}}_{{tile.index}}.{{screenshots.image_format}}",
-                                                      🔵 A Java DateTimeFormatter pattern for formatting the 'start_time_utc'.  
-      "dateTime_formatter_pattern": "uuuu-MM-dd'T'HH:mm:ss.SSSX", 
+                                                      🔵 A Java DateTimeFormatter pattern for formatting the   
+                                                      🔵   'start_time_utc' property value.  
+      "dateTime_formatter_pattern": 
+         "uuuu-MM-dd'T'HH:mm:ss.SSSX", 
       "maximum_height_pixels": 2048,                  🔵 The maximum height of a screenshot in pixels. 
                                                       🔵   Taller images are split into numbered tiles.
-      "scroll_timeout_milliseconds": 100,             🔵 The maximum time to wait for Selenium to scroll the page under test.
+      "scroll_timeout_milliseconds": 100,             🔵 The maximum time to wait for Selenium to scroll the page under 
+                                                      🔵   test.
       "image_format": "png"                           🔵 The screenshot output image format.
     },                                                
     "browsers": {                                     
       "targets": [                                    🔵 An array of browser name specifications. 
-                                                      🔵   Only: 'chrome', 'edge' & 'firefox' are currently permitted.
+                                                      🔵   Only: 'chrome', 'edge' & 'firefox' are permitted.
         {"name": "chrome"},                           
         {"name": "firefox"}                           
       ],                                              
@@ -54,18 +60,17 @@ A typical configuration file for executing the tests is as follows:
         }                                          
       ]                                            
     },                                             
-    "remote-web-driver": {                            🟣 Selenium configuration...
+    "remote_web_driver": {                            🟣 Selenium configuration...
       "scheme": "http",                               🔵 The URL scheme. Only 'http' currently permitted.
-      "bind-address": "0.0.0.0",                      🔵 The IP address or host to bind to.
+      "bind_address": "0.0.0.0",                      🔵 The IP address or host to bind to.
       "port": 4444                                    🔵 The port number on which to expose Selenium.
     }                                              
   },                                               
   "serving": {                                        🟣 HTTP server configuration... 
     "port": 8888,                                     🔵 HTTP port number. 
-    "tls": {                                          🟣 Optional TLS configuration for HTTPS serving...
-      "certificate-alias": "test.lyah"                🔵 Optional keystore certificate alias
-      "keystore-filename": "build/lyah_keystore.jks", 🔵 Optional location for the generated JVM keystore location
-      "port": 8443                                    🔵 HTTPs port number.                                    
+    "tls": {                                          🟣 TLS configuration for HTTPS.
+      "keystore_filename": "lyah.jks",                🔵 Location of the JVM keystore.
+      "port": 8443                                    🔵 HTTPs port number.
     }
   }
 }

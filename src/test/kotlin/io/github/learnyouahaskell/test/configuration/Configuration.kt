@@ -239,7 +239,7 @@ data class GitHub(
 @Serializable
 data class RemoteWebDriver(
     @Contextual val scheme: HttpScheme,
-    @SerialName("bind-address") val bindAddress: String,
+    @SerialName("bind_address") val bindAddress: String,
     @Contextual val port: NonNegativeInt,
     @Transient val uri: URI = URI.create("$scheme://$bindAddress:$port")
 ) {
@@ -260,20 +260,20 @@ data class Tests(
     @SerialName("relative_page_urls") val relativePageUrls: List<String>,  // @todo should be list of relative URIs
     val screenshots: ScreenShots,
     val browsers: Browsers,
-    @SerialName("remote-web-driver") val remoteWebDriver: RemoteWebDriver
+    @SerialName("remote_web_driver") val remoteWebDriver: RemoteWebDriver
 )
 
 @Serializable
 data class Serving(
     @Contextual val port: NonNegativeInt,
-    @SerialName("html-content-root") @Contextual val htmlContentRoot: ExtantDirectory,
+    @SerialName("html_content_root") @Contextual val htmlContentRoot: ExtantDirectory,
     @Contextual val tls: TLS
 )
 
 @Serializable
 data class TLS(
-    @Contextual @SerialName("certificate-alias") val certificateAlias: String = "test.lyah",
-    @Contextual @SerialName("keyStore-filename") val keyStoreFilename: File,
+    @Contextual @SerialName("certificate_alias") val certificateAlias: String = "test.lyah",
+    @Contextual @SerialName("keyStore_filename") val keyStoreFile: File = File("lyah.jks"),
     @Contextual val port: NonNegativeInt,
 )
 
