@@ -17,7 +17,7 @@ object SslSupport {
             .getInstance(KeyStore.getDefaultType())
             .apply {
                 load(
-                    FileInputStream(cs.configuration.serving.tls.keyStoreFilename),
+                    FileInputStream(cs.configuration.serving.tls.keyStoreFile),
                     keyStorePassword.toCharArray()
                 )
             }

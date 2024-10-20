@@ -35,11 +35,3 @@ test {
 kotlin {
     jvmToolchain(parseInt(jvmToolChain))
 }
-
-tasks.register("generateKeyStore", JavaExec) {
-    systemProperty "io.github.learnyouahaskell.test.config", System.getProperty("io.github.learnyouahaskell.test.config")
-    systemProperty "io.github.learnyouahaskell.test.keyStorePassword", System.getProperty("io.github.learnyouahaskell.test.keyStorePassword")
-    systemProperty "io.github.learnyouahaskell.test.privateKeyPassword", System.getProperty("io.github.learnyouahaskell.test.privateKeyPassword")
-    mainClass = "io.github.learnyouahaskell.test.app.KeyStoreSupportKt"
-    classpath = sourceSets.test.runtimeClasspath
-}

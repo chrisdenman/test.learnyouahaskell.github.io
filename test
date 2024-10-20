@@ -80,17 +80,6 @@ else
   logInfo "${ME}" "No existing JVM keystore."
 fi
 
-# Generate the JVM keystore for HTTPS(TLS) test support
-KEYSTORE_DIRECTORY=$(dirname "${KEYSTORE_FILE_PATH}") && readonly KEYSTORE_DIRECTORY
-logInfo "${ME}" "Creating JVM keystore directory $(sQuote "$(green "${KEYSTORE_DIRECTORY}")")."
-mkdir -p "${KEYSTORE_DIRECTORY}" || \
-  { logError "${ME}" "Failed to generate JVM keystore directory $(sQuote "$(red "${KEYSTORE_DIRECTORY}")")." && exit 1 ; }
-./gradlew --quiet generateKeyStore \
-    "-D${VM_PROPERTY_KEYSTORE_PASSWORD}=${KEYSTORE_PASSWORD}" \
-    "-D${VM_PROPERTY_PRIVATE_KEY_PASSWORD}=${PRIVATE_KEY_PASSWORD}" \
-    "-D${VM_PROPERTY_CONFIG_FILE_PATH}=${CONFIG_FILE_PATH}" || \
-      { logError "${ME}" "Failed to generate JVM KeyStore file $(sQuote "$(red "${KEYSTORE_FILE_PATH}")")." && exit 1 ; }
-
 # Copy the Kotlin "Configuration" parsing class file from the root project to the ktor project
 CONFIGURATION_CLASS_PATH=$(find "${SCRIPT_PATH}/src/test/kotlin" -name "${CONFIGURATION_CLASS_NAME}" || \
   { logError "${ME}" "Failed to locate $(sQuote "$(red "${CONFIGURATION_CLASS_NAME}")")" && exit 1 ; }) && \
@@ -98,6 +87,7 @@ CONFIGURATION_CLASS_PATH=$(find "${SCRIPT_PATH}/src/test/kotlin" -name "${CONFIG
 CONFIGURATION_CLASS_PATH_RELATIVE="${CONFIGURATION_CLASS_PATH#"$SCRIPT_PATH"/src/test/}" && \
   readonly CONFIGURATION_CLASS_PATH_RELATIVE
 logInfo "${ME}" "Copying the Kotlin configuration file $(sQuote "$(blue "${CONFIGURATION_CLASS_PATH}")") to $(sQuote "$(green "${KTOR_DIRECTORY}/${CONFIGURATION_CLASS_PATH_RELATIVE}")")."
+mkdir -p "$(dirname "${KTOR_DIRECTORY}/src/main/${CONFIGURATION_CLASS_PATH_RELATIVE}")"
 cp -f "${CONFIGURATION_CLASS_PATH}" "${KTOR_DIRECTORY}/src/main/${CONFIGURATION_CLASS_PATH_RELATIVE}" \
   || {  logError "${ME}" "Failed to copy Configuration.kt file." && exit 1 ; }
 

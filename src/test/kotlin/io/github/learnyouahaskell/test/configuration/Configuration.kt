@@ -273,7 +273,7 @@ data class Serving(
 @Serializable
 data class TLS(
     @Contextual @SerialName("certificate-alias") val certificateAlias: String = "test.lyah",
-    @Contextual @SerialName("keyStore-filename") val keyStoreFilename: File,
+    @Contextual @SerialName("keyStore-filename") val keyStoreFile: File = File("lyah.jks"),
     @Contextual val port: NonNegativeInt,
 )
 
