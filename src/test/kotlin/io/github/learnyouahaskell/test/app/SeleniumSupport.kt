@@ -10,7 +10,9 @@ import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.AbstractDriverOptions
 import org.openqa.selenium.remote.Browser
 import org.openqa.selenium.remote.RemoteWebDriver
+import java.net.URI
 import kotlin.reflect.KClass
+import kotlin.test.assertEquals
 import java.net.URI.create as createUri
 
 class SeleniumSupport {
@@ -70,5 +72,12 @@ class SeleniumSupport {
             element.getAttribute(attributeName).let {
                 isAttributeDeclared(element, attributeName) && it!!.toIntOrNull() != null
             }
+
+        fun <T> assertSize(expectedSize: Int, elements: Collection<T>, message: String? = null) {
+            assertEquals(expectedSize, elements.size, message)
+        }
+
+        fun assertLink(e: WebElement, href: URI, linkText: String) =
+            assertEquals(href, hrefToUri(e)).also { assertEquals(linkText, e.text) }
     }
 }
