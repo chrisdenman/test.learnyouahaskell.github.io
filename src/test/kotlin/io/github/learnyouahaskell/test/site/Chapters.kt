@@ -7,6 +7,7 @@ class Chapters(hostedPages: HostedPages) {
     companion object {
         const val PREVIOUS_LINK_CLASS: String = "prevlink"
         const val NEXT_LINK_CLASS: String = "nxtlink"
+        const val NAVIGATION__UP__TEXT = "Table of contents"
     }
 
     val navigation: List<Chapter> = listOf(

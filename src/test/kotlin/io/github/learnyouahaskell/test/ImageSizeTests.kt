@@ -33,8 +33,6 @@ class ImageSizeTests {
                 findElements(byXPath("//img")).forEach { imageElement ->
                     println("${imageElement.getAttribute("outerHTML")}")
 
-                    // @todo use a fold to deal with imageAttributesCorrect
-
                     var imageAttributesCorrect = true
                     if (!isPositiveIntAttribute(imageElement, "width")) {
                         println("${imageElement.getAttribute("outerHTML")} on $page has an erroneous 'width' attribute.")

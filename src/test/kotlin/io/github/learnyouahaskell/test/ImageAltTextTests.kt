@@ -33,7 +33,7 @@ class ImageAltTextTests {
             var imageAltAttributesCorrect = true
             cs.hostedPages.all().forEach { page ->
                 get(page.uriAsText)
-                val parentUri: URI = cs.hostedPages.landing.uri // @todo
+                val parentUri: URI = cs.hostedPages.landing.uri
 
                 findElements(byXPath("//img")).forEach { imageElement ->
                     if (!isAttributeDeclared(imageElement, "src")) {
