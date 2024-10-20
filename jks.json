@@ -1,0 +1,8 @@
+{
+  "filename": "lyah.jks",
+  "certificate-alias": "test.lyah",
+  "days-valid": 36500,
+  "key-size-bits": 4096,
+  "subject": "CN=test.learnyouahaskell.github.io, OU=learnyouahaskell, O=ceilingcat.co.uk, C=UK",
+  "domains": ["test.learnyouahaskell.github.io"]
+}

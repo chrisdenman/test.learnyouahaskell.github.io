@@ -9,37 +9,26 @@ plugins {
 group = 'io.github.learnyouahaskell.test'
 version = "${version_app}"
 
+application {
+    mainClass = "io.github.learnyouahaskell.test.app.KeyStoreGeneratorKt"
+}
+
+run {
+    systemProperty "io.github.learnyouahaskell.test.config", System.getProperty("io.github.learnyouahaskell.test.config")
+    systemProperty "io.github.learnyouahaskell.test.keyStorePassword", System.getProperty("io.github.learnyouahaskell.test.keyStorePassword")
+    systemProperty "io.github.learnyouahaskell.test.privateKeyPassword", System.getProperty("io.github.learnyouahaskell.test.privateKeyPassword")
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation "io.ktor:ktor-network-tls-certificates"
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
-    testImplementation "org.jetbrains.kotlin:kotlin-reflect"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${version_kotlinx_serialization_json}"
-    testImplementation "org.seleniumhq.selenium:selenium-java:${version_selenium_java}"
-    testImplementation ("com.assertthat:selenium-shutterbug:${version_selenium_shutterbug}") {
-        exclude group: "org.seleniumhq.selenium", module: "selenium-java"
-    }
-}
-
-test {
-    useJUnitPlatform()
-    systemProperty "io.github.learnyouahaskell.test.config", System.getProperty("io.github.learnyouahaskell.test.config")
-    systemProperty "io.github.learnyouahaskell.test.keyStorePassword", System.getProperty("io.github.learnyouahaskell.test.keyStorePassword")
-    minHeapSize = "${jvmMinHeapSize}"
-    maxHeapSize = "${jvmMaxHeapSize}"
+    implementation "io.ktor:ktor-network-tls-certificates"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${version_kotlinx_serialization_json}"
 }
 
 kotlin {
     jvmToolchain(parseInt(jvmToolChain))
-}
-
-tasks.register("generateKeyStore", JavaExec) {
-    systemProperty "io.github.learnyouahaskell.test.config", System.getProperty("io.github.learnyouahaskell.test.config")
-    systemProperty "io.github.learnyouahaskell.test.keyStorePassword", System.getProperty("io.github.learnyouahaskell.test.keyStorePassword")
-    systemProperty "io.github.learnyouahaskell.test.privateKeyPassword", System.getProperty("io.github.learnyouahaskell.test.privateKeyPassword")
-    mainClass = "io.github.learnyouahaskell.test.app.KeyStoreSupportKt"
-    classpath = sourceSets.test.runtimeClasspath
 }
