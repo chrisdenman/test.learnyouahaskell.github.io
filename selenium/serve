@@ -9,7 +9,7 @@ source ../common
 
 # Constants
 DIR_NAME="$(dirname "$0")"
-SELENIUM_SERVER_JAR=$(find $DIR_NAME/selenium-server-*.jar)
+SELENIUM_SERVER_JAR=$(find "$DIR_NAME"/selenium-server-*.jar)
 readonly DIR_NAME SELENIUM_SERVER_JAR
 
 function printUsageAndExit { logError "${ME}" "Usage: 'serve $(blue "CONFIG_FILE")'"; exit 1; }
