@@ -257,7 +257,7 @@ data class ScreenShots(
 
 @Serializable
 data class Tests(
-    @SerialName("relative_page_urls") val relativePageUrls: List<String>,  // @todo should be list of relative URIs
+    @SerialName("relative_page_urls") val relativePageUrls: List<String>,
     val screenshots: ScreenShots,
     val browsers: Browsers,
     @SerialName("remote_web_driver") val remoteWebDriver: RemoteWebDriver
