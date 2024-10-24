@@ -27,19 +27,37 @@ readonly CONFIGURATION_CLASS_NAME='Configuration.kt'
 
 # Terminal Output
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
-    COLOR_RESET='[0m'; COLOR_RED='[31m'; COLOR_GREEN='[32m'; COLOR_YELLOW='[33m'; COLOR_BLUE='[34m'
+  _B="1"; _IT="3"; _U="4"; _F="5"; _I="7"
+  _MOD='[';  __='[0m'
+  _BLACK='30'; _RED='31'; _GREEN='32'; _BROWN='33'; _BLUE='34' _PURPLE='35'; _CYAN='36'; _LGREY='37'
+  BLACK_='40'; RED_='41'; GREEN_='42'; BROWN_='43'; BLUE_='44' PURPLE_='45'; CYAN_='46'; LGREY_='47'
 else
-    COLOR_RESET=''; COLOR_RED=''; COLOR_GREEN=''; COLOR_YELLOW=''; COLOR_BLUE=''
+  _B=""; _IT=""; _U=""; _F=""; _I=""
+  _MOD='';  __=''
+  _BLACK=''; _RED=''; _GREEN=''; _BROWN=''; _BLUE='' _PURPLE=''; _CYAN=''; _LGREY=''
+  BLACK_=''; RED_=''; GREEN_=''; BROWN_=''; BLUE_='' PURPLE_=''; CYAN_=''; LGREY_=''
 fi
 
-function sQuote { echo "'${1}'" ; }
-function red { echo "${COLOR_RED}${1}${COLOR_RESET}" ; }
-function green { echo "${COLOR_GREEN}${1}${COLOR_RESET}" ; }
-function yellow { echo "${COLOR_YELLOW}${1}${COLOR_RESET}" ; }
-function blue { echo "${COLOR_BLUE}${1}${COLOR_RESET}" ; }
-function logInfo  { echo -e "$(blue "$(TZ=${TIME_ZONE} date +${DATE_FORMAT})")" "$(yellow "$1")" "$(green "INFO")" "${2}" ; }
-function logError  { echo -e "$(blue "$(TZ=${TIME_ZONE} date +${DATE_FORMAT})")" "$(yellow "$1")" "$(red "ERROR")" "${2}" ; }
+function wC { echo -n "${_MOD}${1}m$2${__}" ; }
+function sQuote { echo -n "'${1}'" ; }
+function colour { wC "${1}" "${2}" ; }
+function red { wC $_RED "${1}" ; }
+function green { wC $_GREEN "${1}" ; }
+function brown { wC $_BROWN "${1}" ; }
+function blue { wC $_BLUE "${1}" ; }
+function purple { wC $_PURPLE "${1}" ; }
+function cyan { wC $_CYAN "${1}" ; }
+function lgrey { wC $_LGREY "${1}" ; }
+function datef {
+  local output
+  output=$(lgrey "$(TZ=${TIME_ZONE} date +${DATE_FORMAT})")
+  output="${output//:/$(colour "$_BLUE" ":")}"
+  output="${output//./$(colour "$_BLUE" ".")}"
+  echo "${output//-/$(colour "$_BLUE" "-")}"
+}
 
+function logInfo  { echo -e "$(datef)" "$(purple "$1")" "$(green "INFO")" "${2}" ; }
+function logError  { echo -e "$(datef)" "$(purple "$1")" "$(red "ERROR")" "${2}" ; }
 
 #    Fetches a URL until a given status code is returned. Up to a specified number attempts and with a configurable
 #    sleep between each request.
@@ -51,14 +69,15 @@ function logError  { echo -e "$(blue "$(TZ=${TIME_ZONE} date +${DATE_FORMAT})")"
 #   #5 = the maximum number of attempts
 #   #6 = the 'sleep' argument to use between fetches
 function waitForStatusCode {
-  logInfo "${1}" "Waiting for $(green "${2}") ($(green "${3}")) to return $(blue "${4}")..."
+  logInfo "${1}" "Waiting for $(brown "${2}") ($(blue "${3}"))..."
   local statusCode
   # shellcheck disable=SC2034
   for attempt in $(seq 1 "${5}"); do
     statusCode=$(curl --insecure --silent --head "${3}" | awk '/^HTTP/{print $2}')
-    [[ $statusCode == "$4" ]] && return 0
+    [[ $statusCode == "$4" ]] && { logInfo "${ME}" "$(green "${2}") is $(green "READY")." ; return 0 ; }
     sleep "${6}"
   done
+  logError "${ME}" "$(red "${2}") took too long."
   return 1
 }
 

@@ -100,9 +100,8 @@ SELENIUM_URL=$(makeUrl "${SELENIUM_SCHEME}" "${HOST_DNS_NAME}" "${SELENIUM_PORT}
 readonly SELENIUM_URL
 readonly SELENIUM_STATUS_CODE=200
 if ! waitForStatusCode "${ME}" "Selenium" "${SELENIUM_URL}" "${SELENIUM_STATUS_CODE}" 1 "${SERVICE_POLLING_WAIT}" &>/dev/null ; then
-  logInfo "${ME}" "Starting Selenium..."
   pushDir "${ME}" "${SELENIUM_DIRECTORY}"
-  gnome-terminal -- bash -i -c "${SELENIUM_DIRECTORY}/serve ${CONFIG_FILE_PATH}; read"
+  gnome-terminal --title="Selenium" -- bash -i -c "${SELENIUM_DIRECTORY}/serve ${CONFIG_FILE_PATH}; read"
   popDir "${ME}"
 fi
 
@@ -114,9 +113,8 @@ KTOR_URL=$(makeUrl "${KTOR_SCHEME}" "${HOST_DNS_NAME}" "${KTOR_PORT}" "/0386fc26
 ABS_KS_PATH=$(realpath "${KEYSTORE_FILE_PATH}") && readonly ABS_KS_PATH
 readonly KTOR_STATUS_CODE=404
 if ! waitForStatusCode "${ME}" "Ktor" "${KTOR_URL}" "${KTOR_STATUS_CODE}" 1 "${SERVICE_POLLING_WAIT}" &>/dev/null; then
-  logInfo "${ME}" "Starting Ktor..."
   pushDir "${ME}" "${KTOR_DIRECTORY}"
-  gnome-terminal -- bash -i -c "${KTOR_DIRECTORY}/serve ${CONFIG_FILE_PATH} ${ABS_KS_PATH}; read"
+  gnome-terminal --title="Ktor ($(makeUrl "${KTOR_SCHEME}" "${HOST_DNS_NAME}" "${KTOR_PORT}" ""))" -- bash -i -c "${KTOR_DIRECTORY}/serve ${CONFIG_FILE_PATH} ${ABS_KS_PATH}; read"
   popDir "${ME}"
 fi
 
@@ -137,5 +135,7 @@ logInfo "${ME}" "Executing Selenium tests."
 popDir "${ME}"
 
 # Kill Selenium and Ktor
-logInfo "${ME}" "Terminating Ktor and Selenium."
+logInfo "${ME}" "Press $(colour "${_RED};${BLUE_}" "<Enter>") to finish..."
+read -rs
+logInfo "${ME}" "Terminating $(sQuote "$(red "Ktor")") and $(sQuote "$(red "Selenium")")"
 pkill gnome-terminal
