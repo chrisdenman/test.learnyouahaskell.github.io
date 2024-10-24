@@ -8,12 +8,12 @@ import java.lang.System.getProperty
 
 object ConfigurationSupport {
 
-    val configuration = loadFrom(File(getProperty("io.github.learnyouahaskell.test.config")))
+    val config = loadFrom(File(getProperty("io.github.learnyouahaskell.test.config")))
 
-    val hostedPages: HostedPages = HostedPages(configuration)
-    val externalPages: ExternalPages = ExternalPages(configuration)
-    val browserNames: List<String> = configuration.tests.browsers.targets.map { it.name.toString() }
-    val browserDimensions: List<Pair<Int, Int>> = configuration.tests.browsers.dimensions.map {
+    val hostedPages: HostedPages = HostedPages(config)
+    val externalPages: ExternalPages = ExternalPages(config)
+    val browserNames: List<String> = config.tests.browsers.targets.map { it.name.toString() }
+    val browserDimensions: List<Pair<Int, Int>> = config.tests.browsers.dimensions.map {
         it.width.toInt() to it.height.toInt()
     }
 }
