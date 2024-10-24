@@ -7,6 +7,8 @@ import io.github.learnyouahaskell.test.app.SeleniumSupport.Companion.assertSize
 import io.github.learnyouahaskell.test.app.SeleniumSupport.Companion.hrefToUri
 import io.github.learnyouahaskell.test.site.Chapters
 import io.github.learnyouahaskell.test.site.Chapters.Companion.NAVIGATION__UP__TEXT
+import io.github.learnyouahaskell.test.site.Chapters.Companion.NEXT_LINK_CLASS
+import io.github.learnyouahaskell.test.site.Chapters.Companion.PREVIOUS_LINK_CLASS
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import org.openqa.selenium.By.className as byClassName
@@ -32,7 +34,7 @@ class NavigationTests {
                 val isFirstChapter = index == 0
                 val isLastChapter = index == navChapters.size - 1
 
-                findElements(byClassName(Chapters.PREVIOUS_LINK_CLASS)).run {
+                findElements(byClassName(PREVIOUS_LINK_CLASS)).run {
                     assertSize(if (isFirstChapter) 0 else 2, this)
                     forEach { previousLink ->
                         navChapters[index - 1].run { assertLink(previousLink, page.uri, navigationLinkToText!!) }
@@ -44,7 +46,7 @@ class NavigationTests {
                     forEach { it -> assertEquals(cs.hostedPages.chapters.uri, hrefToUri(it)) }
                 }
 
-                findElements(byClassName(Chapters.NEXT_LINK_CLASS)).run {
+                findElements(byClassName(NEXT_LINK_CLASS)).run {
                     assertSize(if (isLastChapter) 0 else 2, this)
                     forEach { navChapters[index + 1].run { assertLink(it, page.uri, navigationLinkToText!!) } }
                 }
