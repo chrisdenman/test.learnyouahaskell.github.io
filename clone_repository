@@ -34,19 +34,11 @@ jq --version &>/dev/null || { ERRORS=1 && logError "${ME}" "$(sQuote "$(red "jq"
 if [ "$ERRORS" -ne "0" ]; then
   logError "${ME}" "Exiting due to previous errors."; exit 1
 else
-  # Read the configuration file's identity
-  ID=$(jq -r '.id' "${CONFIG_FILE_PATH}") && readonly ID
-  # Some initial user feedback
-  logInfo "${ME}" "Using test configuration $(sQuote "$(blue "${ID}")")."
+  # shellcheck disable=SC2162,SC2046,SC2005
+  read OWNER REPOSITORY BRANCH HTML_CONTENT_ROOT WORKING_DIR < <(echo $(jq -r '.github.owner,.github.repository,.github.branch,.github.html_content_root,.github.working_directory' "${CONFIG_FILE_PATH}"))
+  OWNER_AND_REPO="${OWNER}/${REPOSITORY}"
+  readonly OWNER REPOSITORY BRANCH HTML_CONTENT_ROOT WORKING_DIR OWNER_AND_REPO
 
-  # @todo do this all in 1 read?
-  OWNER=$(jq -r '.github.owner' "${CONFIG_FILE_PATH}") && readonly OWNER
-  REPOSITORY=$(jq -r '.github.repository' "${CONFIG_FILE_PATH}") && readonly REPOSITORY
-  BRANCH=$(jq -r '.github.branch' "${CONFIG_FILE_PATH}") && readonly BRANCH
-  OWNER_AND_REPO="${OWNER}/${REPOSITORY}" && readonly OWNER_AND_REPO
-  HTML_CONTENT_ROOT=$(jq -r '.github.html_content_root' "${CONFIG_FILE_PATH}") && readonly HTML_CONTENT_ROOT
-
-  WORKING_DIR=$(jq -r '.github.working_directory' "${CONFIG_FILE_PATH}")
   USING_TEMP_WORKING_DIR=0
   if [ "$WORKING_DIR" = "null" ]; then
     # Create a temporary working directory
