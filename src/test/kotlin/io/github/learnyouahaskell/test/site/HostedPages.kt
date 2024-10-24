@@ -30,7 +30,7 @@ class HostedPages(configuration: Configuration) {
     val chapterForAFewMonadsMore: Page = landing.resolve("for-a-few-monads-more.html", "chapter-for-a-few-monads-more")
     val chapterZippers: Page = landing.resolve("zippers.html", "chapter-zippers")
 
-    fun all(): Iterable<Page> = listOf(
+    val all: Iterable<Page> = listOf(
         landing,
         faq,
         chapters,

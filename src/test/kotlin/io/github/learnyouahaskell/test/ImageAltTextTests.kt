@@ -31,7 +31,7 @@ class ImageAltTextTests {
             cs.browserDimensions.map { ss.browserDimensionsToDimension(it) }
         ) { capabilities, browser, dimensions ->
             var imageAltAttributesCorrect = true
-            cs.hostedPages.all().forEach { page ->
+            cs.hostedPages.all.forEach { page ->
                 get(page.uriAsText)
                 val parentUri: URI = cs.hostedPages.landing.uri
 

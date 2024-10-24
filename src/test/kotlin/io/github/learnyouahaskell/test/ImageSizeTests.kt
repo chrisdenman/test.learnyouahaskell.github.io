@@ -4,7 +4,7 @@ import io.github.learnyouahaskell.test.app.ConfigurationSupport
 import io.github.learnyouahaskell.test.app.SeleniumSupport
 import io.github.learnyouahaskell.test.app.SeleniumSupport.Companion.isAttributeDeclared
 import io.github.learnyouahaskell.test.app.SeleniumSupport.Companion.isPositiveIntAttribute
-import io.github.learnyouahaskell.test.app.SslSupport
+import io.github.learnyouahaskell.test.app.SslSupport.sslContext
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.net.MalformedURLException
@@ -28,7 +28,7 @@ class ImageSizeTests {
             cs.browserDimensions.map { ss.browserDimensionsToDimension(it) }
         ) { capabilities, browser, dimensions ->
             var imageSizeDeclarationsAreCorrect = true
-            cs.hostedPages.all().forEach { page ->
+            cs.hostedPages.all.forEach { page ->
                 get(page.uriAsText)
                 findElements(byXPath("//img")).forEach { imageElement ->
                     println("${imageElement.getAttribute("outerHTML")}")
@@ -51,12 +51,10 @@ class ImageSizeTests {
 
                     if (imageAttributesCorrect) {
                         try {
-                            val x = URI
+                            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.socketFactory)
+                            URI
                                 .create(imageElement.getAttribute("src")!!)
                                 .toURL()
-                            HttpsURLConnection.setDefaultSSLSocketFactory(SslSupport.sslContext?.socketFactory)
-
-                            x
                                 .openStream()
                                 .use {
                                     val image = ImageIO.read(it)
